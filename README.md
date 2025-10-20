@@ -7,6 +7,8 @@ Preprint: https://www.biorxiv.org/content/10.1101/2025.06.25.661537v1
 
 ## Contents
 
+This project also includes code and uses SQL tables from AlphaSync (https://alphasync.stjude.org, code at https://github.com/langbnj/alphasync, preprint at https://www.biorxiv.org/content/10.1101/2025.03.12.642845v2).
+
 **analyses**: R scripts used to perform statistical analyses and produce figures.
 
 **include**: Utility functions.
@@ -20,8 +22,6 @@ Preprint: https://www.biorxiv.org/content/10.1101/2025.06.25.661537v1
 **update**: Scripts used to fill data tables (SQL).
 
 For "pipeline" and "update", first run "download.py" (or "download.pl") to download datasets, followed by "run.py" (or "run.pl").
-
-This project also includes code and uses SQL tables from AlphaSync (https://alphasync.stjude.org, code at https://github.com/langbnj/alphasync, preprint at https://www.biorxiv.org/content/10.1101/2025.03.12.642845v2).
 
 ## Update sequence
 
@@ -43,4 +43,4 @@ Create MySQL tables using "mysql_tables/create_statements.sql". Then, fill MySQL
 
 ## Note
 
-Please don't hesitate to contact me/us for questions and assistance with these scripts (<benjamin.lang@cantab.net>). They have grown historically as these analyses grew far more complex than originally envisioned, though hopefully they are commented well enough to follow along and use them. Thank you!
+Please don't hesitate to contact me/us for questions and assistance with these scripts (<benjamin.lang@cantab.net>). They have grown historically as these analyses grew far more complex than originally envisioned, though we have done our best to comment them well enough to follow along and use them. Thank you!
