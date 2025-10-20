@@ -7,7 +7,11 @@ Preprint: https://www.biorxiv.org/content/10.1101/2025.06.25.661537v1
 
 ## Contents
 
-This project also includes code and uses SQL tables from AlphaSync (https://alphasync.stjude.org, code at https://github.com/langbnj/alphasync, preprint at https://www.biorxiv.org/content/10.1101/2025.03.12.642845v2).
+This project also includes code and uses SQL tables from AlphaSync (https://alphasync.stjude.org). 
+
+AlphaSync code: https://github.com/langbnj/alphasync.
+
+AlphaSync preprint: https://www.biorxiv.org/content/10.1101/2025.03.12.642845v2.
 
 **analyses**: R scripts used to perform statistical analyses and produce figures.
 
