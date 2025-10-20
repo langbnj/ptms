@@ -7,12 +7,6 @@ Preprint: https://www.biorxiv.org/content/10.1101/2025.06.25.661537v1
 
 ## Contents
 
-This project also includes code and uses SQL tables from AlphaSync (https://alphasync.stjude.org). 
-
-AlphaSync code: https://github.com/langbnj/alphasync.
-
-AlphaSync preprint: https://www.biorxiv.org/content/10.1101/2025.03.12.642845v2.
-
 **analyses**: R scripts used to perform statistical analyses and produce figures.
 
 **include**: Utility functions.
@@ -26,6 +20,14 @@ AlphaSync preprint: https://www.biorxiv.org/content/10.1101/2025.03.12.642845v2.
 **update**: Scripts used to fill data tables (SQL).
 
 For "pipeline" and "update", first run "download.py" (or "download.pl") to download datasets, followed by "run.py" (or "run.pl").
+
+## AlphaSync
+
+This project also uses code and SQL tables from AlphaSync (https://alphasync.stjude.org). 
+
+AlphaSync code: https://github.com/langbnj/alphasync.
+
+AlphaSync preprint: https://www.biorxiv.org/content/10.1101/2025.03.12.642845v2.
 
 ## Update sequence
 
