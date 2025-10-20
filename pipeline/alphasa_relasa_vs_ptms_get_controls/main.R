@@ -1,4 +1,4 @@
-#!/home/blang1/bin/Rscript --vanilla
+#!/usr/bin/env Rscript --vanilla
 
 library("RMySQL")
 library("tibble")
@@ -9,7 +9,8 @@ if (exists("superreservedcon"))
   rm(superreservedcon)
 }
 
-superreservedcon = dbConnect(dbDriver("MySQL"), host="mbsql.stjude.org", dbname="blang")
+# Insert server name here:
+superreservedcon = dbConnect(dbDriver("MySQL"), host="[server name]", dbname="blang")
 Query <- function(query)
 {
   a = as_tibble(dbGetQuery(superreservedcon, statement=query))

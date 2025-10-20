@@ -125,49 +125,6 @@ qr %<>% mutate(acc = as.factor(acc))
 qr %<>% mutate(aa = as.factor(aa))
 levels(qr$type)
 qr
-# Let's look at rate4site_einsi_tree_1para (best evorate):
-# wilcox.test (builtin)
-wilcox.test(rate ~ type, qr %>% filter(evorate=="rate4site_einsi_tree_1para"))$p.value
-# >> 2e-131
-# wilcox_test (coin)
-# Unstratified
-wilcox_test(rate ~ type, qr %>% filter(evorate=="rate4site_einsi_tree_1para")) %>% pvalue %>% as.numeric
-# >> 2e-131
-# Stratified by acc
-wilcox_test(rate ~ type | acc, qr %>% filter(evorate=="rate4site_einsi_tree_1para")) %>% pvalue %>% as.numeric
-# >> 8e-147
-# Stratified by acc and alternative="less" (one-tailed, CSA rate < Control rate)
-wilcox_test(rate ~ type | acc, qr %>% filter(evorate=="rate4site_einsi_tree_1para"), alternative="less") %>% pvalue %>% as.numeric
-# >> 4e-147
-# Stratified by acc and alternative="greater" (one-tailed, CSA rate > Control rate)
-wilcox_test(rate ~ type | acc, qr %>% filter(evorate=="rate4site_einsi_tree_1para"), alternative="greater") %>% pvalue %>% as.numeric
-# >> 1
-
-# Stratified by evorate
-wilcox_test(rate ~ type | evorate, qr) %>% pvalue %>% as.numeric
-# >> 0
-# Stratified by evorate and acc
-qr
-wilcox_test(rate ~ type | evorate + acc, qr) %>% pvalue %>% as.numeric
-# >> 0
-wilcox_test(rate ~ type | evorate + acc, qr, alternative="less") %>% pvalue %>% as.numeric
-# >> 0
-wilcox_test(rate ~ type | evorate + acc, qr, alternative="greater") %>% pvalue %>% as.numeric
-# >> 1
-
-# Let's try a bad evorate type so the p-values aren't all 0:
-wilcox_test(rate ~ type, qr %>% filter(evorate=="capra0_ginsi")) %>% pvalue %>% as.numeric
-# >> 1e-102
-# Stratified by acc
-wilcox_test(rate ~ type | acc, qr %>% filter(evorate=="capra0_ginsi")) %>% pvalue %>% as.numeric
-# >> 2e-109
-# >> Slight improvement
-
-# Conclusion: Stratifying by acc (protein) provides a small p-value improvement for M-CSA catalytic sites.
-# This means that it should be beneficial to stratify the PTM site analysis by acc as well (and the resampling, i.e. to get an equal number of control sites per protein as there are PTM sites in it).
-# However, on the other hand, stratifying the PTM site analysis by acc frequently means that there are very few residues per protein (see ~/pipeline/evolutionary_rate_analysis/debug-list-P.txt and debug-list-C.txt).
-# Final conclusion:
-# >> Don't stratify by acc (protein).
 
 # Visualising the number of CSA and control residues per acc:
 qr %>% 

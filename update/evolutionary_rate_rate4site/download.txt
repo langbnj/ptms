@@ -1,0 +1,6 @@
+Software from:
+https://www.tau.ac.il/~itaymay/cp/rate4site.html
+
+Version 3.3 (doubleRep) provided as personal communication to resolve crashes.
+
+Place in ./rate4site_sources_3.3_slow/

@@ -24,7 +24,7 @@ def Connect(database = "blang", server = ""):
             query={
                 'autocommit': '1',      # For InnoDB
                 'local_infile': '1',    # For LOAD DATA LOCAL INFILE
-                'read_default_file': '/home/blang1/.my.cnf'
+                'read_default_file': '~/.my.cnf'
             }
         )
         # blang_mysql_connection = sa.create_engine(url=myDB)

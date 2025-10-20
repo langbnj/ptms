@@ -1,4 +1,4 @@
-#!/home/blang1/bin/perl -w
+#!/usr/bin/env perl -w
 
 require('functions.inc.pl');
 #require('mysql.inc.pl');

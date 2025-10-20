@@ -1,4 +1,4 @@
-#!/home/blang1/bin/Rscript --vanilla
+#!/usr/bin/env Rscript --vanilla
 
 # initialize
 suppressPackageStartupMessages(library("ggplot2"))

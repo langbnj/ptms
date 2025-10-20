@@ -1,4 +1,4 @@
-#!/home/blang1/bin/perl -w
+#!/usr/bin/env perl -w
 use DBD::mysql;
 use DBI;
 use DBD::Proxy; # For TSV export
