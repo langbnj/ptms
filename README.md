@@ -11,7 +11,7 @@ This project also uses code and SQL tables from AlphaSync (https://alphasync.stj
 
 AlphaSync code: https://github.com/langbnj/alphasync.
 
-AlphaSync preprint: https://www.biorxiv.org/content/10.1101/2025.03.12.642845v2.
+AlphaSync article: https://www.nature.com/articles/s41594-025-01719-x.
 
 ## Contents
 
@@ -49,4 +49,4 @@ Create MySQL tables using "mysql_tables/create_statements.sql". Then, fill MySQL
 
 ## Note
 
-Please don't hesitate to contact me/us for questions and assistance with these scripts (<benjamin.lang@cantab.net>). They have grown historically as these analyses grew far more complex than originally envisioned, though we have done our best to comment them well enough to follow along and use them. Thank you!
+Please don't hesitate to contact us for questions and assistance with these scripts (<benjamin.lang@cantab.net>, <madan.babu@stjude.org>). They have grown historically as these analyses grew far more complex than originally envisioned, though we have done our best to comment them well enough to follow along and use them. Thank you!
