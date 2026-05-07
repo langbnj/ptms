@@ -32,9 +32,9 @@ For "pipeline" and "update", first run "download.py" (or "download.pl") to downl
 ## Install dependencies
 
 ### Python
-`pip install biopython requests sqlalchemy ipdb natsort numpy pandas pymysql scipy tabulate tqdm`
+```pip install biopython requests sqlalchemy ipdb natsort numpy pandas pymysql scipy tabulate tqdm```
 ### Perl
-`cpan -i Bundle::CPAN Term::ReadKey Term::ReadLine::Perl CPAN::DistnameInfo XML::Parser Statistics::Descriptive Statistics::R Text::CSV List::Compare Sort::Key::Natural Carp::Always Math::Round Statistics::Robust::Scale List::Vectorize Statistics::Multtest Statistics::RankCorrelation DBD::mysql`
+```cpan -i Bundle::CPAN Term::ReadKey Term::ReadLine::Perl CPAN::DistnameInfo XML::Parser Statistics::Descriptive Statistics::R Text::CSV List::Compare Sort::Key::Natural Carp::Always Math::Round Statistics::Robust::Scale List::Vectorize Statistics::Multtest Statistics::RankCorrelation DBD::mysql```
 ### SQL
 A MySQL or MariaDB server.
 
