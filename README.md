@@ -29,6 +29,15 @@ AlphaSync article: https://www.nature.com/articles/s41594-025-01719-x.
 
 For "pipeline" and "update", first run "download.py" (or "download.pl") to download datasets, followed by "run.py" (or "run.pl").
 
+## Install dependencies
+
+### Python
+`pip install biopython requests sqlalchemy ipdb natsort numpy pandas pymysql scipy tabulate tqdm`
+### Perl
+`cpan -i Bundle::CPAN Term::ReadKey Term::ReadLine::Perl CPAN::DistnameInfo XML::Parser Statistics::Descriptive Statistics::R Text::CSV List::Compare Sort::Key::Natural Carp::Always Math::Round Statistics::Robust::Scale List::Vectorize Statistics::Multtest Statistics::RankCorrelation DBD::mysql`
+### SQL
+A MySQL or MariaDB server.
+
 ## Update sequence
 
 Create MySQL tables using "mysql_tables/create_statements.sql". Then, fill MySQL tables in this sequence:
