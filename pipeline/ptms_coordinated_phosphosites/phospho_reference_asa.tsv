@@ -1,0 +1,8 @@
+# Maximum ASA reference values for phosphorylated residues, in square Angstroms.
+# Derived by the Gly-X-Gly enumeration of Tien et al. 2013 (PLoS One 8(11):e80635, PMID 24278298);
+# see phospho_reference_asa.py. The parent value is the Empirical column of their Table 1,
+# scaled by the phospho/parent ratio measured here.
+residue	parent	ratio	reference_asa
+SEP	SER	1.580	226
+TPO	THR	1.491	243
+PTR	TYR	1.308	334

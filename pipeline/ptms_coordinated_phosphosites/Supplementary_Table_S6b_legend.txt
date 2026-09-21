@@ -1,0 +1,12 @@
+b, Systematic survey of the PDB. All 22 human phosphosites that are both buried (RSA ≤ 0.25) and held by two or more Lys or Arg side chains within a single protein chain, among all high-resolution human crystal structures containing phosphoserine, phosphothreonine or phosphotyrosine. Search criteria and definitions are given in the notes below the table.
+
+Notes
+Search. Every human X-ray structure in the PDB at ≤ 2.0 Å resolution, released by 16 September 2026, containing phosphoserine, phosphothreonine or phosphotyrosine (1,236 entries). This gave 98 unique phosphosites in 69 proteins with a phosphate coordinated by Lys or Arg, of which the 22 listed are also buried.
+Coordination. A Lys or Arg side chain of the same chain with a charged-group atom (Lys NZ; Arg NE, CZ, NH1, NH2) within 4.0 Å of a phosphate atom, the ionic-contact criterion of Supplementary Table 4. Fully coordinated: two or more such side chains.
+Burial. Relative solvent accessibility (RSA) ≤ 0.25, computed with DSSP on the isolated chain, matching the monomeric analysis elsewhere in this work, and normalized to the empirical maxima of Tien et al. (2013). For phosphorylated residues, for which no maxima have been published, maxima were derived by the same Gly-X-Gly enumeration: SEP 226, TPO 243, PTR 334 Å². 'RSA using the unmodified parent reference' uses the smaller maxima of Ser, Thr and Tyr instead, the more conservative convention.
+Exclusions. Co-crystallized substrate phosphopeptides (chains under 30 residues) and non-human chains. Every residue number was mapped to UniProt through SIFTS and accepted only where the canonical sequence carries the corresponding Ser, Thr or Tyr.
+Numbering. Phosphosites follow UniProt. 'Residue number in entry' and the coordinating residues are numbered as deposited in the representative entry.
+Representative entry. The entry and chain with the most coordinating side chains, then the lowest RSA, then the best resolution. 'Lowest SASA' and 'Lowest RSA' are the lowest values among the entries in which the site is coordinated by Lys or Arg.
+Reproducibility. Whether the site is buried and fully coordinated in all, at least half, or fewer than half of the entries in which the phosphorylated residue is resolved.
+Protein kinase and structural context. Protein kinases are the proteins with a domain in the Kincore alignment of human protein kinase domains (Modi & Dunbrack, 2019), in which the activation loop runs from the DFG to the APE motif.
+Code and complete results: https://github.com/langbnj/ptms

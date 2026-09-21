@@ -1,0 +1,109 @@
+# Coordinated phosphosites with their kinase assignment, from phosphosites.tsv.
+# Written by classify_kinase_sites.py.
+#
+# is_kinase           the protein has a domain in the Kincore alignment of human
+#                     protein kinase domains
+# region              activation_loop_N, activation_loop_insert or activation_loop_C
+#                     between the DFG and APE motifs; kinase_domain_other elsewhere
+#                     in the domain; outside_kinase_domain for another part of a
+#                     kinase; not_a_kinase otherwise
+# is_activation_loop  region is one of the three activation loop segments
+acc	site	protein_name	phos_res	min_relasa	min_asa	max_contacts	buried_and_coordinated	entries_total	entries_buried_and_coordinated	fraction_of_entries	evidence	is_kinase	region	is_activation_loop
+P49759	341.0	Dual specificity protein kinase CLK1	SEP	0.0	0	2	False	3	0	0.0	not_annotated	True	activation_loop_C	True
+O60260	65.0	E3 ubiquitin-protein ligase parkin	SEP	0.018	4	3	True	2	1	0.5	experimental	False	not_a_kinase	False
+P08631	522.0	Tyrosine-protein kinase HCK	PTR	0.027	9	2	True	4	4	1.0	experimental	True	outside_kinase_domain	False
+Q96G74	177.0	OTU domain-containing protein 5	SEP	0.031	7	2	True	1	1	1.0	experimental	False	not_a_kinase	False
+P05187	114.0	Alkaline phosphatase, placental type	SEP	0.035	8	1	False	6	0	0.0	not_annotated	False	not_a_kinase	False
+Q9NUL5	253.0	Shiftless antiviral inhibitor of ribosomal frameshifting protein	TPO	0.062	15	3	True	1	1	1.0	not_annotated	False	not_a_kinase	False
+Q9NUL5	250.0	Shiftless antiviral inhibitor of ribosomal frameshifting protein	TPO	0.066	16	2	True	1	1	1.0	not_annotated	False	not_a_kinase	False
+O96013	474.0	Serine/threonine-protein kinase PAK 4	SEP	0.084	19	3	True	12	11	0.9166666666666666	experimental	True	activation_loop_C	True
+P36871	117.0	Phosphoglucomutase-1	SEP	0.093	21	2	True	3	2	0.6666666666666666	experimental	False	not_a_kinase	False
+P12931	530.0	TYROSINE-PROTEIN KINASE SRC	PTR	0.12	40	2	True	3	3	1.0	experimental	True	outside_kinase_domain	False
+P07332	713.0	Proto-oncogene tyrosine-protein kinase Fes/Fps	PTR	0.144	48	2	True	1	1	1.0	experimental	True	activation_loop_N	True
+Q9NWZ3	345.0	Interleukin-1 receptor-associated kinase 4	TPO	0.16	39	2	True	21	10	0.4761904761904761	experimental	True	activation_loop_insert	True
+P23443	252.0	Ribosomal protein S6 kinase beta-1	TPO	0.173	42	3	True	3	2	0.6666666666666666	experimental	True	activation_loop_C	True
+P00519	393.0	Tyrosine-protein kinase ABL1	PTR	0.174	58	1	False	1	0	0.0	experimental	True	activation_loop_N	True
+P08581	1235.0	Hepatocyte growth factor receptor	PTR	0.183	61	1	False	2	0	0.0	experimental	True	activation_loop_N	True
+Q16539	180.0	Mitogen-activated protein kinase 14	TPO	0.185	45	4	True	1	1	1.0	experimental	True	activation_loop_C	True
+P17612	339.0	cAMP-dependent protein kinase catalytic subunit alpha	SEP	0.19	43	2	True	23	20	0.8695652173913043	experimental	True	outside_kinase_domain	False
+Q9NWZ3	342.0	Interleukin-1 receptor-associated kinase 4	TPO	0.193	47	2	True	14	1	0.0714285714285714	experimental	True	activation_loop_N	True
+P07949	905.0	Proto-oncogene tyrosine-protein kinase receptor Ret	PTR	0.216	72	3	True	5	4	0.8	experimental	True	activation_loop_N	True
+P12931	419.0	Proto-oncogene tyrosine-protein kinase Src	PTR	0.222	74	2	True	1	1	1.0	by_similarity	True	activation_loop_N	True
+O14965	288.0	Aurora kinase A	TPO	0.226	55	3	True	26	2	0.0769230769230769	experimental	True	activation_loop_C	True
+P31751	451.0	RAC-beta serine/threonine-protein kinase	TPO	0.226	55	2	True	1	1	1.0	by_similarity	True	outside_kinase_domain	False
+P29597	1054.0	Non-receptor tyrosine-protein kinase TYK2	PTR	0.228	76	1	False	2	0	0.0	experimental	True	activation_loop_N	True
+O15530	241.0	3-phosphoinositide-dependent protein kinase 1	SEP	0.23	52	3	True	29	1	0.0344827586206896	experimental	True	activation_loop_C	True
+P17612	198.0	cAMP-dependent protein kinase catalytic subunit alpha	TPO	0.235	57	2	True	23	1	0.0434782608695652	experimental	True	activation_loop_C	True
+P24941	160.0	Cyclin-dependent kinase 2	TPO	0.243	59	3	True	25	3	0.12	experimental	True	activation_loop_C	True
+P12931	338.0	Proto-oncogene tyrosine-protein kinase Src	PTR	0.246	82	1	False	1	0	0.0	not_annotated	True	kinase_domain_other	False
+P41743	564.0	Protein kinase C iota type	TPO	0.247	60	4	True	3	1	0.3333333333333333	experimental	True	outside_kinase_domain	False
+P21802	657.0	Fibroblast growth factor receptor 2	PTR	0.254	85	2	False	1	0	0.0	experimental	True	activation_loop_N	True
+P28482	187.0	Mitogen-activated protein kinase 1	PTR	0.26	87	2	False	2	0	0.0	experimental	True	activation_loop_C	True
+Q9UHD2	172.0	Serine/threonine-protein kinase TBK1	SEP	0.261	59	3	False	1	0	0.0	experimental	True	activation_loop_C	True
+P23458	1035.0	Tyrosine-protein kinase JAK1	PTR	0.266	89	3	False	24	0	0.0	experimental	True	activation_loop_insert	True
+Q9NQU5	560.0	Serine/threonine-protein kinase PAK 6	SEP	0.27	61	3	False	3	0	0.0	by_similarity	True	activation_loop_C	True
+O60674	1008.0	Tyrosine-protein kinase JAK2	PTR	0.272	91	3	False	38	0	0.0	by_similarity	True	activation_loop_insert	True
+P31751	309.0	RAC-BETA SERINE/THREONINE PROTEIN KINASE	TPO	0.276	67	2	False	5	0	0.0	experimental	True	activation_loop_C	True
+Q9UQB9	198.0	Aurora kinase C	TPO	0.28	68	3	False	1	0	0.0	by_similarity	True	activation_loop_C	True
+P29320	701.0	Ephrin receptor	PTR	0.281	94	1	False	4	0	0.0	experimental	True	kinase_domain_other	False
+Q13976	517.0	cGMP-dependent protein kinase 1	TPO	0.292	71	2	False	4	0	0.0	not_annotated	True	activation_loop_C	True
+P06213	1190.0	insulin receptor subunit beta	PTR	0.299	100	2	False	3	0	0.0	experimental	True	activation_loop_N	True
+Q14653	386.0	Interferon regulatory factor 3	SEP	0.301	68	2	False	2	0	0.0	experimental	False	not_a_kinase	False
+Q16512	916.0	Serine/threonine-protein kinase N1	SEP	0.305	69	3	False	1	0	0.0	by_similarity	True	outside_kinase_domain	False
+P28482	185.0	Mitogen-activated protein kinase 1	TPO	0.313	76	3	False	2	0	0.0	by_similarity	True	activation_loop_C	True
+Q16539	182.0	Mitogen-activated protein kinase 14	PTR	0.323	108	2	False	4	0	0.0	experimental	True	activation_loop_C	True
+Q9NUL5	249.0	Shiftless antiviral inhibitor of ribosomal frameshifting protein	SEP	0.327	74	2	False	1	0	0.0	not_annotated	False	not_a_kinase	False
+P43405	526.0	Tyrosine-protein kinase SYK	PTR	0.329	110	1	False	8	0	0.0	experimental	True	activation_loop_insert	True
+O00506	174.0	SERINE/THREONINE PROTEIN KINASE 25	TPO	0.342	83	2	False	2	0	0.0	experimental	True	activation_loop_C	True
+P06239	394.0	Proto-oncogene tyrosine-protein kinase LCK	PTR	0.344	115	2	False	10	0	0.0	experimental	True	activation_loop_N	True
+O43683	969.0	Mitotic checkpoint serine/threonine-protein kinase BUB1	SEP	0.35	79	1	False	2	0	0.0	not_annotated	True	activation_loop_C	True
+P23458	1034.0	Tyrosine-protein kinase JAK1	PTR	0.353	118	2	False	24	0	0.0	experimental	True	activation_loop_N	True
+Q13043	183.0	Serine/threonine-protein kinase 4 37kDa subunit	TPO	0.354	86	2	False	1	0	0.0	experimental	True	activation_loop_C	True
+Q9P286	602.0	Serine/threonine-protein kinase PAK 7	SEP	0.358	81	2	False	1	0	0.0	not_annotated	True	activation_loop_C	True
+Q9UQB9	39.0	Aurora kinase C	TPO	0.358	87	1	False	1	0	0.0	not_annotated	True	outside_kinase_domain	False
+O60674	1007.0	Tyrosine-protein kinase JAK2	PTR	0.362	121	3	False	47	0	0.0	experimental	True	activation_loop_N	True
+P24723	656.0	Protein kinase C eta type	TPO	0.362	88	3	False	1	0	0.0	experimental	True	outside_kinase_domain	False
+P41743	412.0	Protein kinase C iota type	TPO	0.366	89	2	False	3	0	0.0	by_similarity	True	activation_loop_C	True
+P08581	1234.0	Hepatocyte growth factor receptor	PTR	0.368	123	2	False	2	0	0.0	experimental	True	activation_loop_N	True
+P31749	308.0	RAC-alpha serine/threonine-protein kinase	TPO	0.374	91	2	False	4	0	0.0	experimental	True	activation_loop_C	True
+Q9Y6E0	190.0	Serine/threonine-protein kinase 24 36 kDa subunit	TPO	0.374	91	2	False	3	0	0.0	experimental	True	activation_loop_C	True
+Q9UKE5	187.0	TRAF2 and NCK-interacting protein kinase	TPO	0.379	92	2	False	1	0	0.0	by_similarity	True	activation_loop_C	True
+Q9NQS7	894.0	Inner centromere protein	SEP	0.385	87	2	False	1	0	0.0	experimental	False	not_a_kinase	False
+P43405	525.0	Tyrosine-protein kinase SYK	PTR	0.386	129	2	False	12	0	0.0	experimental	True	activation_loop_N	True
+Q04759	538.0	Protein kinase C, theta type	TPO	0.391	95	2	False	1	0	0.0	by_similarity	True	activation_loop_C	True
+Q9Y2K2	221.0	Serine/threonine-protein kinase SIK3	TPO	0.399	97	2	False	1	0	0.0	experimental	True	activation_loop_C	True
+Q16512	774.0	Serine/threonine-protein kinase N1	TPO	0.416	101	2	False	1	0	0.0	experimental	True	activation_loop_C	True
+P24723	513.0	Protein kinase C eta type	TPO	0.436	106	2	False	1	0	0.0	by_similarity	True	activation_loop_C	True
+P52333	981.0	Tyrosine-protein kinase JAK3	PTR	0.44	147	1	False	1	0	0.0	experimental	True	activation_loop_insert	True
+Q13153	423.0	Serine/threonine-protein kinase PAK 1	TPO	0.444	108	2	False	4	0	0.0	experimental	True	activation_loop_C	True
+Q04759	676.0	Protein kinase C theta type	SEP	0.451	102	2	False	1	0	0.0	experimental	True	outside_kinase_domain	False
+O43781	350.0	Dual specificity tyrosine-phosphorylation-regulated kinase 3	SEP	0.456	103	1	False	1	0	0.0	experimental	True	kinase_domain_other	False
+Q13177	402.0	PAK-2p34	TPO	0.457	111	2	False	2	0	0.0	by_similarity	True	activation_loop_C	True
+P54762	647.0	Ephrin type-B receptor 1	PTR	0.458	153	2	False	2	0	0.0	not_annotated	True	kinase_domain_other	False
+O75385	180.0	Serine/threonine-protein kinase ULK1	TPO	0.461	112	2	False	8	0	0.0	not_annotated	True	activation_loop_C	True
+P48730	220.0	Casein kinase I isoform delta	TPO	0.461	112	1	False	5	0	0.0	not_annotated	True	kinase_domain_other	False
+P06213	1189.0	insulin receptor subunit beta	PTR	0.464	155	1	False	3	0	0.0	experimental	True	activation_loop_N	True
+Q13627	321.0	Dual specificity tyrosine-phosphorylation-regulated kinase 1A	PTR	0.464	155	2	False	20	0	0.0	experimental	True	activation_loop_C	True
+O75531	3.0	Barrier-to-autointegration factor, N-terminally processed	TPO	0.477	116	1	False	1	0	0.0	experimental	False	not_a_kinase	False
+Q9HCE5	399.0	METTL14	SEP	0.482	109	1	False	3	0	0.0	experimental	False	not_a_kinase	False
+Q14004	871.0	Cyclin-dependent kinase 13	TPO	0.498	121	2	False	1	0	0.0	by_similarity	True	activation_loop_C	True
+P35968	1054.0	Vascular endothelial growth factor receptor 2	PTR	0.515	172	1	False	1	0	0.0	experimental	True	activation_loop_N	True
+P52333	980.0	Tyrosine-protein kinase JAK3	PTR	0.518	173	1	False	1	0	0.0	experimental	True	activation_loop_N	True
+Q9Y463	273.0	Dual specificity tyrosine-phosphorylation-regulated kinase 1B	PTR	0.536	179	2	False	1	0	0.0	experimental	True	activation_loop_C	True
+P21802	586.0	Fibroblast growth factor receptor 2	PTR	0.548	183	1	False	1	0	0.0	experimental	True	kinase_domain_other	False
+Q9NUL5	256.0	Shiftless antiviral inhibitor of ribosomal frameshifting protein	SEP	0.553	125	2	False	1	0	0.0	not_annotated	False	not_a_kinase	False
+P49841	216.0	GLYCOGEN SYNTHASE KINASE-3 BETA	PTR	0.56	187	2	False	2	0	0.0	experimental	True	activation_loop_C	True
+O43781	369.0	Dual specificity tyrosine-phosphorylation-regulated kinase 3	PTR	0.563	188	2	False	1	0	0.0	by_similarity	True	activation_loop_C	True
+P49840	279.0	Glycogen synthase kinase-3 alpha	PTR	0.572	191	2	False	1	0	0.0	by_similarity	True	activation_loop_C	True
+P0CG47	164.0	Polyubiquitin-B	TPO	0.576	140	1	False	1	0	0.0	not_annotated	False	not_a_kinase	False
+P11309	261.0	Serine/threonine-protein kinase pim-1	SEP	0.606	137	1	False	21	0	0.0	experimental	True	kinase_domain_other	False
+O75531	4.0	Barrier-to-autointegration factor, N-terminally processed	SEP	0.615	139	1	False	1	0	0.0	experimental	False	not_a_kinase	False
+P36544	365.0	Tyrosine 3-monooxygenase/tryptophan 5-monooxygenase activation protein zeta,Neuronal acetylcholine receptor subunit alpha-7	SEP	0.615	139	1	False	1	0	0.0	not_annotated	False	not_a_kinase	False
+Q9UKE5	181.0	TRAF2 and NCK-interacting protein kinase	TPO	0.617	150	1	False	1	0	0.0	not_annotated	True	activation_loop_N	True
+P49759	342.0	Dual specificity protein kinase CLK1	TPO	0.663	161	1	False	3	0	0.0	not_annotated	True	activation_loop_C	True
+O43781	445.0	Dual specificity tyrosine-phosphorylation-regulated kinase 3	SEP	0.721	163	1	False	1	0	0.0	not_annotated	True	kinase_domain_other	False
+P04049	233.0	RAF proto-oncogene serine/threonine-protein kinase	SEP	0.726	164	1	False	1	0	0.0	not_annotated	True	outside_kinase_domain	False
+P41743	484.0	Protein kinase C iota type	SEP	0.73	165	1	False	1	0	0.0	not_annotated	True	kinase_domain_other	False
+O43293	50.0	DEATH-ASSOCIATED PROTEIN KINASE 3	SEP	0.752	170	1	False	1	0	0.0	experimental	True	kinase_domain_other	False
+Q9NWZ3	346.0	Interleukin-1 receptor-associated kinase 4	SEP	0.752	170	1	False	20	0	0.0	experimental	True	activation_loop_C	True
+P33981	675.0	Dual specificity protein kinase TTK	TPO	0.984	239	1	False	1	0	0.0	not_annotated	True	activation_loop_N	True
