@@ -46,8 +46,14 @@ Reference accessibility for phosphoresidues
 Input
 -----
 None. Structures, metadata, residue mappings and modification annotations are
-retrieved from the RCSB Search and Data APIs, PDBe SIFTS and UniProt, and
-cached under pdb_cache/ so that re-runs are offline and fast.
+retrieved from the RCSB Search and Data APIs, the residue-level SIFTS files of
+PDBe and UniProt, and cached under pdb_cache/ so that re-runs are offline and
+fast.
+
+Ubiquitin is encoded by four genes with an identical sequence (UBB, UBC, UBA52
+and RPS27A), two of them as tandem repeats, and SIFTS assigns a given chain to
+any of these. Its sites are therefore numbered within the 76-residue ubiquitin
+unit and reported under UBC (P0CG48), so that each is counted once.
 
 The search ignores structures released after RELEASE_CUTOFF below, so that it
 returns the same set of entries however long after publication it is repeated.
@@ -59,8 +65,8 @@ TSV with one row per phosphoresidue-to-Lys/Arg contact, and one row with
 n_contacts 0 for each phosphoresidue that has no such contact, so that every
 entry in which a site is resolved can be counted:
     pdb_id, resolution, method, chain, chain_length, protein_name, acc, site,
-    site_evidence, mapping, mapping_ok, single_segment, phos_res, phos_resnum,
-    phos_icode, asa_chain, relasa_chain, buried, relasa_assembly, n_contacts,
+    site_evidence, mapping, mapping_ok, phos_res, phos_resnum, phos_icode,
+    asa_chain, relasa_chain, buried, relasa_assembly, n_contacts,
     coord_res, coord_resnum, phos_atom, coord_atom, dist_charged, dist_heavy,
     is_human, is_peptide, include
 Structures that could not be processed are listed in failed_structures.txt.
@@ -81,11 +87,11 @@ import csv
 import gzip
 import json
 import os
+import re
 import subprocess
 import tempfile
 import time
 import warnings
-from collections import defaultdict
 from datetime import date
 from io import StringIO
 
@@ -136,15 +142,22 @@ MAX_ASA: dict[str, float] = {
     "SEP": 226.0, "TPO": 243.0, "PTR": 334.0,
 }
 
+# Ubiquitin precursors, with the number of 76-residue ubiquitin units each begins
+# with. Sites in these units are reported on the first unit of UBC.
+UBIQUITIN_UNITS  = {"P0CG47": 3, "P0CG48": 9, "P62987": 1, "P62979": 1}
+UBIQUITIN_LENGTH = 76
+UBIQUITIN_ACC    = "P0CG48"
+
 # UniProt evidence codes, collapsed to three levels.
 EXPERIMENTAL_ECO = frozenset({"ECO:0000269"})
 SIMILARITY_ECO   = frozenset({"ECO:0000250", "ECO:0007744", "ECO:0000305"})
+EVIDENCE_ORDER   = ["experimental", "by_similarity", "predicted", "none"]
 
 RCSB_SEARCH   = "https://search.rcsb.org/rcsbsearch/v2/query"
 RCSB_ENTRY    = "https://data.rcsb.org/rest/v1/core/entry/{pdb_id}"
 RCSB_ENTITY   = "https://data.rcsb.org/rest/v1/core/polymer_entity/{pdb_id}/{entity_id}"
 RCSB_CIF      = "https://files.rcsb.org/download/{pdb_id}.cif.gz"
-SIFTS_URL     = "https://www.ebi.ac.uk/pdbe/api/mappings/uniprot_segments/{pdb_id}"
+SIFTS_URL     = "https://ftp.ebi.ac.uk/pub/databases/msd/sifts/xml/{pdb_id}.xml.gz"
 UNIPROT_URL   = "https://rest.uniprot.org/uniprotkb/{acc}.json"
 
 CACHE_DIR   = "pdb_cache"
@@ -152,7 +165,7 @@ OUTFILE     = "coordinated_phosphoresidues.tsv"
 FAILED_FILE = "failed_structures.txt"
 
 COLUMNS = ["pdb_id", "resolution", "method", "chain", "chain_length", "protein_name",
-           "acc", "site", "site_evidence", "mapping", "mapping_ok", "single_segment",
+           "acc", "site", "site_evidence", "mapping", "mapping_ok",
            "phos_res", "phos_resnum", "phos_icode",
            "asa_chain", "relasa_chain", "buried", "relasa_assembly",
            "n_contacts", "coord_res", "coord_resnum", "phos_atom", "coord_atom",
@@ -169,11 +182,12 @@ HEADER = f"""\
 # retrieved            {{retrieved}}
 #
 # chain_length      residues in the polymer entity, or observed residues where unavailable
-# acc, site         UniProt accession and position in its canonical sequence
+# acc, site         UniProt accession and position in its canonical sequence; ubiquitin
+#                   sites are numbered within the ubiquitin unit of {UBIQUITIN_ACC}
 # site_evidence     UniProt evidence for phosphorylation at that position
-# mapping           how site was obtained: sifts, author_numbering, sifts_conflict or unmapped
+# mapping           sifts, from the residue-level SIFTS mapping; sifts_conflict, where the
+#                   canonical sequence disagrees; unmapped, where SIFTS maps no position
 # mapping_ok        the canonical sequence carries the expected Ser, Thr or Tyr at site
-# single_segment    the chain maps to one contiguous UniProt segment
 # phos_resnum       residue number as deposited, with phos_icode the insertion code
 # asa_chain         accessible surface area (Å²) of the phosphoresidue, DSSP on the isolated chain
 # relasa_chain      asa_chain over the reference maximum for that residue type
@@ -305,39 +319,46 @@ def fetch_cif(pdb_id):
     return text
 
 
+SIFTS_RESIDUE = re.compile(r'<residue dbSource="PDBe"[^>]*>(.*?)</residue>', re.S)
+SIFTS_PDB     = re.compile(r'<crossRefDb dbSource="PDB" [^>]*dbResNum="([^"]+)"[^>]*dbChainId="([^"]+)"')
+SIFTS_UNIPROT = re.compile(r'<crossRefDb dbSource="UniProt" [^>]*dbAccessionId="([^"]+)" dbResNum="(-?\d+)"')
+
+
 def fetch_sifts(pdb_id, retries=5):
-    """SIFTS residue-level mapping, as {chain: {accession: [segments]}}."""
-    def fetch():
+    """SIFTS residue-level mapping, as {(chain, residue number): [(accession, position)]}.
+
+    The residue number is the deposited one, with any insertion code appended.
+    Mapping residue by residue, rather than by offsets within aligned segments,
+    stays correct across deletions in the construct and where the first or
+    last residue of a segment is not modelled.
+    """
+    path = cache_path("sifts", f"{pdb_id.upper()}.xml.gz")
+    if not os.path.exists(path):
         url = SIFTS_URL.format(pdb_id=pdb_id.lower())
         for attempt in range(retries):
             try:
                 r = requests.get(url, timeout=60)
                 if r.ok:
-                    return r.json().get(pdb_id.lower(), {}).get("UniProt", {})
+                    with open(path, "wb") as fh:
+                        fh.write(r.content)
+                    break
                 if r.status_code == 404:
                     return {}
             except requests.RequestException:
                 pass
             time.sleep(2.0 * (attempt + 1))
-        return None
-
-    raw = cached_json(cache_path("sifts", f"{pdb_id.upper()}.json"), fetch)
-    if not raw:
-        return {}
-    mapping = defaultdict(lambda: defaultdict(list))
-    for acc, block in raw.items():
-        for seg in block.get("mappings", []):
-            chain = seg.get("chain_id") or seg.get("struct_asym_id")
-            unp_start, unp_end = seg.get("unp_start"), seg.get("unp_end")
-            auth_start = seg.get("start", {}).get("author_residue_number")
-            auth_end = seg.get("end", {}).get("author_residue_number")
-            if chain is None or unp_start is None or unp_end is None:
-                continue
-            if auth_start is None and auth_end is None:
-                continue
-            mapping[chain][acc].append({"auth_start": auth_start, "auth_end": auth_end,
-                                        "unp_start": int(unp_start), "unp_end": int(unp_end)})
-    return {chain: dict(accs) for chain, accs in mapping.items()}
+        else:
+            return {}
+    with gzip.open(path, "rt", encoding="utf-8", errors="replace") as fh:
+        text = fh.read()
+    mapping = {}
+    for block in SIFTS_RESIDUE.findall(text):
+        pdb = SIFTS_PDB.search(block)
+        if not pdb or pdb.group(1) == "null":
+            continue
+        mapping[(pdb.group(2), pdb.group(1))] = [(acc, int(position))
+                                                for acc, position in SIFTS_UNIPROT.findall(block)]
+    return mapping
 
 
 def fetch_uniprot(acc):
@@ -366,11 +387,15 @@ def fetch_uniprot(acc):
             code = evidence.get("evidenceCode", "")
             codes.add(code.get("code", "") if isinstance(code, dict) else str(code))
         if codes & EXPERIMENTAL_ECO:
-            sites[int(position)] = "experimental"
+            level = "experimental"
         elif codes & SIMILARITY_ECO:
-            sites[int(position)] = "by_similarity"
+            level = "by_similarity"
         else:
-            sites[int(position)] = "predicted"
+            level = "predicted"
+        # A position can carry several annotations, for example one per
+        # modifying enzyme; the strongest evidence among them is kept.
+        if EVIDENCE_ORDER.index(level) < EVIDENCE_ORDER.index(sites.get(int(position), "none")):
+            sites[int(position)] = level
     return {"sequence": data.get("sequence", {}).get("value", ""),
             "organism": data.get("organism", {}).get("scientificName", ""),
             "sites": sites}
@@ -380,47 +405,26 @@ def fetch_uniprot(acc):
 # Residue mapping
 # ---------------------------------------------------------------------------
 
-def sifts_position(resnum, chain, acc, sifts):
-    """Author residue number mapped to a position in the canonical sequence.
-
-    A segment may be missing one of its author bounds, so the offset is taken
-    from whichever bound is present and checked against the UniProt range.
-    Returns (position, whether the chain maps as a single segment).
-    """
-    segments = sifts.get(chain, {}).get(acc)
-    if not segments:
-        return None, None
-    single = len(segments) == 1
-    for seg in segments:
-        auth_start, auth_end = seg["auth_start"], seg["auth_end"]
-        unp_start, unp_end = seg["unp_start"], seg["unp_end"]
-        if auth_start is not None and auth_end is not None:
-            if auth_start <= resnum <= auth_end:
-                return unp_start + (resnum - auth_start), single
-        elif auth_start is not None:
-            position = unp_start + (resnum - auth_start)
-            if unp_start <= position <= unp_end:
-                return position, single
-        elif auth_end is not None:
-            position = unp_end - (auth_end - resnum)
-            if unp_start <= position <= unp_end:
-                return position, single
-    return None, single
+def ubiquitin_unit(acc, position):
+    """Ubiquitin sites as positions in the first ubiquitin unit of UBC."""
+    units = UBIQUITIN_UNITS.get(acc)
+    if units and position is not None and 1 <= position <= units * UBIQUITIN_LENGTH:
+        return UBIQUITIN_ACC, (position - 1) % UBIQUITIN_LENGTH + 1
+    return acc, position
 
 
 def assign_accession(record, entity, sifts, uniprot_cache):
     """Accession for this chain, and the phosphoresidue's position on it.
 
-    A chain may reference more than one accession, either because the construct
-    is a fusion or because SIFTS splits it. The accession chosen is the one
-    whose SIFTS segment covers the phosphoresidue and whose canonical sequence
-    carries the right residue there, which is also what catches mis-mapped
-    positions.
+    SIFTS maps each deposited residue to UniProt. Where it gives more than one
+    accession, the one whose canonical sequence carries the right residue is
+    chosen, preferring an accession the entry itself references. Residues that
+    SIFTS leaves unmapped, such as those in expression tags, stay unmapped.
 
-    Returns (accession, position, single_segment, residue_matches, mapping).
+    Returns (accession, position, residue_matches, mapping).
     """
     expected = PARENT_AA[record["phos_res"]]
-    candidates = entity.get("accessions") or []
+    referenced = entity.get("accessions") or []
 
     def sequence_of(acc):
         if acc not in uniprot_cache:
@@ -429,38 +433,26 @@ def assign_accession(record, entity, sifts, uniprot_cache):
         entry = uniprot_cache[acc]
         return entry["sequence"] if entry else ""
 
+    key = (record["chain"], f"{record['phos_resnum']}{record['phos_icode']}")
     best = None
-    for acc in candidates:
-        position, single = sifts_position(record["phos_resnum"], record["chain"], acc, sifts)
-        if position is None:
-            continue
+    for acc, position in sifts.get(key, []):
         sequence = sequence_of(acc)
         matches = bool(sequence) and 1 <= position <= len(sequence) \
             and sequence[position - 1] == expected
-        score = (matches, single is True)
+        score = (matches, acc in referenced)
         if best is None or score > best[0]:
-            best = (score, acc, position, single, matches)
-    if best is not None and best[0][0]:
-        _, acc, position, single, matches = best
-        return acc, position, single, matches, "sifts"
+            best = (score, acc, position, matches)
 
-    # SIFTS does not cover every deposited residue. Where it fails, the author
-    # numbering is tested directly against the canonical sequence and accepted
-    # only if the residue there is the right one, which rules out the offset
-    # constructs that would otherwise split one site into two.
-    for acc in candidates:
-        sequence = sequence_of(acc)
-        position = record["phos_resnum"]
-        if sequence and 1 <= position <= len(sequence) and sequence[position - 1] == expected:
-            return acc, position, None, True, "author_numbering"
+    if best is None:
+        acc = referenced[0] if referenced else None
+        if acc:
+            sequence_of(acc)
+        return acc, None, False, "unmapped"
 
-    if best is not None:
-        _, acc, position, single, matches = best
-        return acc, position, single, matches, "sifts_conflict"
-    acc = candidates[0] if candidates else None
-    if acc:
-        sequence_of(acc)
-    return acc, None, None, False, "unmapped"
+    _, acc, position, matches = best
+    acc, position = ubiquitin_unit(acc, position)
+    sequence_of(acc)
+    return acc, position, matches, "sifts" if matches else "sifts_conflict"
 
 
 # ---------------------------------------------------------------------------
@@ -710,8 +702,8 @@ def main():
 
         for record in records:
             entity = meta["entities"].get(entity_of_chain.get(record["chain"], ""), {})
-            acc, site, single_segment, mapping_ok, mapping = assign_accession(
-                record, entity, sifts, uniprot_cache)
+            acc, site, mapping_ok, mapping = assign_accession(record, entity, sifts,
+                                                              uniprot_cache)
 
             entry = uniprot_cache.get(acc) if acc else None
             if entry is None:
@@ -741,7 +733,6 @@ def main():
                 "site_evidence": evidence,
                 "mapping": mapping,
                 "mapping_ok": mapping_ok,
-                "single_segment": single_segment,
                 "chain_length": chain_length,
                 "resolution": meta["resolution"],
                 "method": meta["method"],

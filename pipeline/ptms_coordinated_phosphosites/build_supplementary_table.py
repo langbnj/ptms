@@ -109,16 +109,17 @@ REGION_LABEL = {
 # table itself. Every number is filled in from the data.
 LEGEND = (
     "b, Systematic survey of the PDB. All {n_rows} human phosphosites that are both buried "
-    "(RSA \u2264 {relasa_cutoff}) and held by two or more Lys or Arg side chains within a single "
-    "protein chain, among all high-resolution human crystal structures containing "
-    "phosphoserine, phosphothreonine or phosphotyrosine. Search criteria and definitions are "
-    "given in the notes below the table.")
+    "(RSA \u2264 {relasa_cutoff}, computed on the isolated chain) and held by two or more Lys or "
+    "Arg side chains of the same chain, among all high-resolution human crystal structures "
+    "containing phosphoserine, phosphothreonine or phosphotyrosine. Search criteria and "
+    "definitions are given in the notes below the table.")
 
 NOTES = [
     "Search. Every human X-ray structure in the PDB at \u2264 2.0 \u00c5 resolution, released by "
     "{cutoff}, containing phosphoserine, phosphothreonine or phosphotyrosine ({n_searched} "
     "entries). This gave {n_sites} unique phosphosites in {n_proteins} proteins with a phosphate "
-    "coordinated by Lys or Arg, of which the {n_rows} listed are also buried.",
+    "coordinated by Lys or Arg, of which the {n_rows} listed are also buried in a chain in which "
+    "they are fully coordinated.",
 
     "Coordination. A Lys or Arg side chain of the same chain with a charged-group atom (Lys NZ; "
     "Arg NE, CZ, NH1, NH2) within {dist_cutoff} \u00c5 of a phosphate atom, the ionic-contact "
@@ -126,15 +127,20 @@ NOTES = [
     "side chains.",
 
     "Burial. Relative solvent accessibility (RSA) \u2264 {relasa_cutoff}, computed with DSSP on "
-    "the isolated chain, matching the monomeric analysis elsewhere in this work, and normalized "
-    "to the empirical maxima of Tien et al. (2013). For phosphorylated residues, for which no "
-    "maxima have been published, maxima were derived by the same Gly-X-Gly enumeration: SEP 226, "
-    "TPO 243, PTR 334 \u00c5\u00b2. 'RSA using the unmodified parent reference' uses the "
-    "smaller maxima of Ser, Thr and Tyr instead, the more conservative convention.",
+    "the isolated chain, matching the monomeric analysis elsewhere in this work, and normalised "
+    "to the empirical maxima of Tien et al. (2013). No maxima have been published for "
+    "phosphorylated residues; for these, the empirical maximum of the parent residue was scaled "
+    "by the phospho/parent ratio obtained by repeating the Gly-X-Gly enumeration of Tien et al.: "
+    "SEP 226, TPO 243, PTR 334 \u00c5\u00b2. 'RSA using the unmodified parent reference' is the "
+    "lowest RSA recalculated with the smaller maxima of Ser, Thr and Tyr, the more conservative "
+    "convention. Entries in which a partner chain packs against the site show a lower "
+    "accessibility for the whole entry than for the isolated chain.",
 
-    "Exclusions. Co-crystallized substrate phosphopeptides (chains under 30 residues) and "
-    "non-human chains. Every residue number was mapped to UniProt through SIFTS and accepted "
-    "only where the canonical sequence carries the corresponding Ser, Thr or Tyr.",
+    "Exclusions. Co-crystallised substrate phosphopeptides (chains under 30 residues), "
+    "non-human chains, and phosphoresidues that SIFTS does not map to UniProt, such as those in "
+    "expression tags. Each residue was mapped to UniProt individually through SIFTS and accepted "
+    "only where the canonical sequence carries the corresponding Ser, Thr or Tyr. Ubiquitin, "
+    "encoded by four genes with an identical sequence, is counted once.",
 
     "Numbering. Phosphosites follow UniProt. 'Residue number in entry' and the coordinating "
     "residues are numbered as deposited in the representative entry.",
@@ -156,7 +162,7 @@ NOTES = [
 # Column widths, in characters.
 WIDTHS = {"No.": 5, "Gene": 10, "UniProt": 9, "Protein": 34, "Phosphosite": 12,
           "Representative PDB entry": 11, "Chain": 6, "Resolution (Å)": 10,
-          "Residue number in entry": 11, "SASA of the phosphoresidue (Å²)": 12,
+          "Residue number in entry": 11, "SASA in the isolated chain (Å²)": 12,
           "RSA in the isolated chain": 12, "Lowest SASA across entries (Å²)": 12,
           "Lowest RSA across entries": 12, "RSA using the unmodified parent reference": 13,
           "Buried under both reference conventions": 13, "Arg/Lys contacts": 10,
@@ -237,7 +243,7 @@ def build_table(contacts, sites):
             "Chain": pick.chain,
             "Resolution (Å)": round(float(pick.resolution), 2),
             "Residue number in entry": int(pick.phos_resnum),
-            "SASA of the phosphoresidue (Å²)": int(pick.asa_chain),
+            "SASA in the isolated chain (Å²)": int(pick.asa_chain),
             "RSA in the isolated chain": round(float(pick.relasa_chain), 3),
             "Lowest SASA across entries (Å²)": int(site.min_asa),
             "Lowest RSA across entries": round(float(site.min_relasa), 3),

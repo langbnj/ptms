@@ -37,11 +37,11 @@ TPO and PTR, for which no published values exist. Its results are already
 written into `find_coordinated_phosphoresidues.py` as constants, so it only needs
 running to reproduce them. It takes under a minute.
 
-Nothing else needs preparing. Structures, metadata, residue mappings and
-modification annotations are downloaded as needed and cached under `pdb_cache/`,
-including the DSSP results. The first run takes from about 15 minutes to over an
-hour depending on the connection, and a second run about three minutes. The
-cache is roughly 700 MB.
+Nothing else needs preparing. Structures, metadata, residue-level SIFTS
+mappings and modification annotations are downloaded as needed and cached under
+`pdb_cache/`, including the DSSP results. The first run takes from about 15
+minutes to over an hour depending on the connection, and a second run about
+three minutes. The cache is roughly 750 MB.
 
 ## Reproducibility
 
@@ -52,20 +52,21 @@ later made obsolete. Raise the date to bring the survey up to date. UniProt
 annotations and SIFTS mappings are retrieved live and can change over time; the
 cache under `pdb_cache/` keeps them fixed for re-runs.
 
-The whole pipeline has been run on two machines with different DSSP builds,
-mkdssp 4.2.2 on x86-64 and 4.0.4 on ARM64, and gave byte-identical output
-files.
+Accessibility has been computed on two machines with different DSSP builds,
+mkdssp 4.2.2 on x86-64 and 4.0.4 on ARM64, with identical results. The values
+in Supplementary Table 6b also agree with the DSSP server at PDB-REDO
+(https://pdb-redo.eu/dssp, DSSP 4.6.1) run on the same chains.
 
 Expected counts, printed by `summarise_phosphosites.py`:
 
 | | |
 | --- | --- |
-| Unique coordinated phosphosites | 98, in 69 proteins |
-| Fully coordinated (two or more Lys/Arg) | 68 |
-| Buried within the chain | 28 |
-| Buried and fully coordinated in the same chain | 22, in 18 proteins |
+| Unique coordinated phosphosites | 101, in 71 proteins |
+| Fully coordinated (two or more Lys/Arg) | 69 |
+| Buried within the chain | 29 |
+| Buried and fully coordinated in the same chain | 23, in 19 proteins |
 | of which in every entry in which the site is resolved | 9 |
-| in at least half of those entries | 15 |
+| in at least half of those entries | 16 |
 
 ## Files
 
@@ -102,7 +103,9 @@ Each output file carries a commented header explaining its columns.
 | Buried | relative solvent accessibility ≤ 0.25 (Levy 2010), DSSP on the isolated chain |
 | Ionic contact | ≤ 4.0 Å between the closest atoms of the phosphate group and the Lys or Arg charged group (Supplementary Table 4) |
 | Fully coordinated | two or more such side chains, in the same chain |
-| Excluded | chains under 30 residues, which are co-crystallised substrate peptides, and chains whose phosphoresidue does not belong to a human UniProt entry |
+| Mapping | each residue mapped to UniProt individually through SIFTS, and accepted only where the canonical sequence has the matching Ser, Thr or Tyr |
+| Ubiquitin | encoded by UBB, UBC, UBA52 and RPS27A with an identical sequence; its sites are numbered within the 76-residue ubiquitin unit and counted once, under UBC (P0CG48) |
+| Excluded | chains under 30 residues, which are co-crystallised substrate peptides, chains whose phosphoresidue does not belong to a human UniProt entry, and phosphoresidues that SIFTS does not map to UniProt, such as those in expression tags |
 
 ## Dependencies
 
