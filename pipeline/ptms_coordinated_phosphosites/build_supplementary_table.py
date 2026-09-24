@@ -150,7 +150,7 @@ NOTES = [
     "the Kincore alignment of human protein kinase domains (Modi & Dunbrack, 2019), in which the "
     "activation loop runs from the DFG to the APE motif.",
 
-    "Code and complete results: https://github.com/langbnj/ptms",
+    "Code and complete results: https://github.com/langbnj/ptms/tree/main/pipeline/ptms_coordinated_phosphosites",
 ]
 
 # Column widths, in characters.

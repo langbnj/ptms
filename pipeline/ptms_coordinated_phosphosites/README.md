@@ -75,8 +75,12 @@ Expected counts, printed by `summarise_phosphosites.py`:
 | `phospho_reference_asa.py` | Derives reference accessibilities for SEP, TPO and PTR by repeating the Gly-X-Gly enumeration of Tien et al. |
 | `find_coordinated_phosphoresidues.py` | Searches the PDB and writes one row per phosphoresidue-to-Lys/Arg contact. |
 | `summarise_phosphosites.py` | Collapses those contacts to one row per unique phosphosite and reports the counts quoted in the response. |
-| `classify_kinase_sites.py` | Labels each site as kinase or not, and locates it in the kinase domain. Supersedes `classify_kinase_activation_loops.py`. |
+| `classify_kinase_sites.py` | Labels each site as kinase or not, and locates it in the kinase domain, using `Human-PK-alignment.fasta`. |
 | `build_supplementary_table.py` | Builds Supplementary Table 6b as a TSV and a formatted workbook, with the matching paragraph of the legend. Given the curated literature table with `--table6a`, also assembles the two-tab Supplementary Table 6. |
+
+| Input | Contents |
+| --- | --- |
+| `Human-PK-alignment.fasta` | The Kincore structure-based alignment of 497 human protein kinase domains (Modi & Dunbrack, 2019), from https://dunbrack.fccc.edu/kincore/alignment. |
 
 | Output | Contents |
 | --- | --- |

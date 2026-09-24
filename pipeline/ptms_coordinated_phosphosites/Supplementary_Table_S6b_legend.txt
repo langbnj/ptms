@@ -9,4 +9,4 @@ Numbering. Phosphosites follow UniProt. 'Residue number in entry' and the coordi
 Representative entry. The entry and chain with the most coordinating side chains, then the lowest RSA, then the best resolution. 'Lowest SASA' and 'Lowest RSA' are the lowest values among the entries in which the site is coordinated by Lys or Arg.
 Reproducibility. Whether the site is buried and fully coordinated in all, at least half, or fewer than half of the entries in which the phosphorylated residue is resolved.
 Protein kinase and structural context. Protein kinases are the proteins with a domain in the Kincore alignment of human protein kinase domains (Modi & Dunbrack, 2019), in which the activation loop runs from the DFG to the APE motif.
-Code and complete results: https://github.com/langbnj/ptms
+Code and complete results: https://github.com/langbnj/ptms/tree/main/pipeline/ptms_coordinated_phosphosites
