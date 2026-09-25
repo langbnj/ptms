@@ -61,6 +61,8 @@ import re
 
 import pandas as pd
 from openpyxl import Workbook, load_workbook
+from openpyxl.cell.rich_text import CellRichText, TextBlock
+from openpyxl.cell.text import InlineFont
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
@@ -148,10 +150,14 @@ NOTES = [
 
     "Representative entry: The entry and chain with the most coordinating side chains, then "
     "the lowest RSA, then the best resolution. 'Lowest SASA' and 'Lowest RSA' are the lowest "
-    "values among the entries in which the site is coordinated by Lys or Arg.",
+    "values among the entries in which the site is coordinated by Lys or Arg. 'Highest RSA' is "
+    "the highest value among all entries in which the phosphorylated residue is resolved (RSA "
+    "values are capped at 1).",
 
     "Reproducibility: Whether the site is buried and fully coordinated in all, at least half, "
-    "or fewer than half of the entries in which the phosphorylated residue is resolved.",
+    "or fewer than half of the entries in which the phosphorylated residue is resolved. 'PDB "
+    "entries in which the site is resolved' lists these entries, with those in which the site is "
+    "buried and fully coordinated first and marked with an asterisk.",
 
     "Kinase structural context: Kinase domains are from the Kincore alignment of human protein "
     "kinase domains (Modi & Dunbrack, 2019), in which the activation loop runs from the DFG to "
@@ -165,14 +171,18 @@ WIDTHS = {"No.": 5, "Gene": 10, "UniProt": 9, "Protein": 34, "Phosphosite": 12,
           "Representative PDB entry": 11, "Chain": 6, "Resolution (Å)": 10,
           "PDB residue number": 11, "SASA in the isolated chain (Å²)": 12,
           "RSA in the isolated chain": 12, "Lowest SASA across entries (Å²)": 12,
-          "Lowest RSA across entries": 12, "RSA using the unmodified parent reference": 13,
+          "Lowest RSA across entries": 12, "Highest RSA across entries": 12,
+          "RSA using the unmodified parent reference": 13,
           "Buried under both reference conventions": 13, "Arg/Lys contacts": 10,
           "Coordinating residues (charged-group distance, Å)": 44,
           "Entries in which the site is resolved": 12, "Entries buried and fully coordinated": 13,
-          "Reproducibility": 16, "UniProt modification evidence": 30, "Protein kinase": 9,
+          "Reproducibility": 16, "PDB entries in which the site is resolved": 36,
+          "UniProt modification evidence": 30, "Protein kinase": 9,
           "Structural context": 34}
+# Characters per wrapped line where the default estimate is too generous (capitals and digits)
+LINE_CHARS = {"PDB entries in which the site is resolved": 30}
 THREE_DECIMALS = ["RSA in the isolated chain", "Lowest RSA across entries",
-                  "RSA using the unmodified parent reference"]
+                  "Highest RSA across entries", "RSA using the unmodified parent reference"]
 
 # Formatting matches the literature tab of Supplementary Table 6 (Table 6a).
 FONT         = "Helvetica Neue"
@@ -228,11 +238,27 @@ def representative(contacts, site):
     return pick, coordinating
 
 
-def build_table(contacts, sites):
+def resolved_entries(resolved, site):
+    """The entries in which a site is resolved, coordinated or not, listed with those
+    in which it is buried and fully coordinated first and marked with an asterisk,
+    and its highest relative accessibility among them."""
+    rows = resolved[(resolved.acc == site.acc) & (resolved.site == site.site)]
+    qualifies = (rows.relasa_chain <= RELASA_CUTOFF) & (rows.n_contacts >= MIN_CONTACTS)
+    per_entry = qualifies.groupby(rows.pdb_id).any()
+    # Must agree with the counts from summarise_phosphosites.py
+    assert len(per_entry) == site.entries_total, (site.acc, site.site)
+    assert int(per_entry.sum()) == site.entries_buried_and_coordinated, (site.acc, site.site)
+    listed = ([f"{entry}*" for entry in sorted(per_entry[per_entry].index)]
+              + sorted(per_entry[~per_entry].index))
+    return ", ".join(listed), float(rows.relasa_chain.max())
+
+
+def build_table(contacts, sites, resolved):
     """One row per buried, fully coordinated site."""
     rows = []
     for site in sites[sites.buried_and_coordinated].itertuples():
         pick, coordinating = representative(contacts, site)
+        entries, max_relasa = resolved_entries(resolved, site)
         parent_relasa = site.min_asa / PARENT_MAX_ASA[site.phos_res]
         gene, protein = uniprot_names(site.acc)
         rows.append({
@@ -248,6 +274,7 @@ def build_table(contacts, sites):
             "RSA in the isolated chain": round(float(pick.relasa_chain), 3),
             "Lowest SASA across entries (Å²)": int(site.min_asa),
             "Lowest RSA across entries": round(float(site.min_relasa), 3),
+            "Highest RSA across entries": round(max_relasa, 3),
             "RSA using the unmodified parent reference": round(float(parent_relasa), 3),
             "Buried under both reference conventions":
                 "Yes" if parent_relasa <= RELASA_CUTOFF else "No",
@@ -261,6 +288,7 @@ def build_table(contacts, sites):
             "Reproducibility": ("all entries" if site.fraction_of_entries == 1
                                 else "at least half of entries" if site.fraction_of_entries >= 0.5
                                 else "fewer than half of entries"),
+            "PDB entries in which the site is resolved": entries,
             "UniProt modification evidence": EVIDENCE_LABEL.get(site.evidence, site.evidence),
             "Protein kinase": "Yes" if site.is_kinase else "No",
             "Structural context": REGION_LABEL.get(site.region, site.region),
@@ -279,9 +307,9 @@ def build_table(contacts, sites):
 # Workbook
 # ---------------------------------------------------------------------------
 
-def wrapped_lines(value, width):
+def wrapped_lines(value, width, per_line=None):
     """Lines a value occupies when wrapped in a column of the given width."""
-    per_line = max(1, int(width * 1.1))
+    per_line = per_line or max(1, int(width * 1.1))
     return sum(max(1, -(-len(part) // per_line)) for part in str(value).split("\n"))
 
 
@@ -321,7 +349,7 @@ def write_sheet(sheet, table, notes=()):
     # Row heights, from the number of wrapped lines in the fullest cell, so that
     # nothing is cut off whether or not the spreadsheet program refits them.
     for i, row in enumerate(table.itertuples(index=False), start=2):
-        lines = max(wrapped_lines(value, WIDTHS.get(name, 14))
+        lines = max(wrapped_lines(value, WIDTHS.get(name, 14), LINE_CHARS.get(name))
                     for name, value in zip(columns, row))
         sheet.row_dimensions[i].height = LINE_HEIGHT * lines + 4
     sheet.freeze_panes = "A2"
@@ -334,9 +362,14 @@ def write_sheet(sheet, table, notes=()):
         row = last_row + 2
         sheet.cell(row=row, column=1, value="Notes:").font = Font(name=FONT, size=FONT_SIZE,
                                                                   bold=True)
+        sheet.merge_cells(start_row=row, start_column=1, end_row=row, end_column=span)
         for note in notes:
             row += 1
-            cell = sheet.cell(row=row, column=1, value=note)
+            # Each note starts with a label ending in a colon, set in bold.
+            label, _, text = note.partition(": ")
+            value = CellRichText([TextBlock(InlineFont(rFont=FONT, sz=FONT_SIZE, b=True), label + ":"),
+                                  TextBlock(InlineFont(rFont=FONT, sz=FONT_SIZE), " " + text)])
+            cell = sheet.cell(row=row, column=1, value=value)
             cell.font = Font(name=FONT, size=FONT_SIZE)
             cell.alignment = Alignment(wrap_text=True, vertical="top")
             sheet.merge_cells(start_row=row, start_column=1, end_row=row, end_column=span)
@@ -395,11 +428,12 @@ def main():
     args = parser.parse_args()
 
     contacts = pd.read_csv(args.contacts, sep="\t", comment="#")
-    contacts = contacts[(contacts["include"] == True) & (contacts.n_contacts >= 1)]
+    resolved = contacts[contacts["include"] == True]
+    contacts = resolved[resolved.n_contacts >= 1]
     sites = pd.read_csv(args.sites, sep="\t", comment="#")
     provenance = read_provenance(args.contacts)
 
-    table = build_table(contacts, sites)
+    table = build_table(contacts, sites, resolved)
     values = dict(
         n_rows=len(table),
         cutoff=format_date(provenance.get("release_cutoff", "?")),
