@@ -39,6 +39,14 @@ pip install biopython requests sqlalchemy ipdb natsort numpy pandas pymysql scip
 ```bash
 cpan -i Bundle::CPAN Term::ReadKey Term::ReadLine::Perl CPAN::DistnameInfo XML::Parser Statistics::Descriptive Statistics::R Text::CSV List::Compare Sort::Key::Natural Carp::Always Math::Round Statistics::Robust::Scale List::Vectorize Statistics::Multtest Statistics::RankCorrelation DBD::mysql
 ```
+### R
+```r
+install.packages(c("tidyverse", "ggrepel", "ggbeeswarm", "measurements", "coin", "doBy", "Hmisc", "Matching", "reshape2", "RMySQL", "tictoc"))
+```
+The R scripts start with `blang_init()`, which loads the shared settings in include/blang.R. Define it in `~/.Rprofile`:
+```r
+blang_init <- function() source("~/ptms/include/blang.R")
+```
 ### SQL
 A MySQL or MariaDB server.
 

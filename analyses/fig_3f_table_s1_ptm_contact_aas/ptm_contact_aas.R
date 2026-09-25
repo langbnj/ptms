@@ -1,6 +1,4 @@
-source("~/Documents/R/blang.R")
 blang_init()
-setwd("~/Library/CloudStorage/Dropbox/Madan/SJ-Primary-Projects/PTMs/ptm_contact_aas")
 
 # Get PTM types with at least 1000 sites
 ptms1000 <- c("R-me", "K-sum", "S-gly", "K-me", "T-gly", "S-p", "K-ac", "T-p", "K-ub", "K-mal", "K-suc", "N-gly", "Y-p", "M-ox", "C-pal", "C-glt", "C-nit") # Order as in alphasa "all ptms" figure (all >1000, ptms1000 I suppose)

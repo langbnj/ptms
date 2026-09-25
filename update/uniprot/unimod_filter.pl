@@ -129,7 +129,7 @@ $ptm{'M|modified residue|%acetylmethionine%'} = 'M-ac';
 # Others (from dbPTM)
 
 # Methionine sulfoxidation: interesting since it happens on internal methionines, not terminal ones. >1000 sites in dbPTM.
-# "Oxidation" is also a dbPTM term for methionine sulfoxidation (PMID 23648414). Pretty ridiculous that dbPTM has it separately.
+# "Oxidation" is also a dbPTM term for methionine sulfoxidation (PMID 23648414).
 $ptm{'M|modified residue|%sulfoxid%'} = 'M-ox';
 
 # Lipid: cysteine palmitoylation (internal, not terminal, hence interesting)

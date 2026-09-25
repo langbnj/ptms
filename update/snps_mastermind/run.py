@@ -8,7 +8,7 @@ Run: Run entire pipeline
 from blang_mysql import *
 from blang import *
 
-apitoken = "yzCtuDYU3AeC9ldf7uAJPVMeC3OlxNUpPE8Ic5KlP8gQQnRVfWPV1SWd1qbIkUS4"
+apitoken = ""  # Insert your Mastermind API token here
 
 rel = "2024.01.03"
 vep_infile = f"input/mastermind_cited_variants_reference-{rel}-grch38.vcf.gz"

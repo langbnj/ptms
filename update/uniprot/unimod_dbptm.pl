@@ -349,7 +349,7 @@ while (<IN>)
 					# . 1993 Jan 15;47(4):2122-2129.  doi: 10.1103/physrevb.47.2122.
 					# Self-consistent electronic structure of parabolic semiconductor quantum wells: Inhomogeneous-effective-mass and magnetic-field effects
 
-					# 19,811 numeric sources get filtered out here. Some trash probably remains, but there's nothing I can do to fix this.
+					# 19,811 numeric sources get filtered out here. Some uninformative sources may remain.
 
 					addme("DEBUG: total numeric sources below 10,000,000 (unlikely to be PubMed) (source removed)", $source);
 					$source = '';

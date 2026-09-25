@@ -115,13 +115,13 @@ our $politemode = 0;
 
 
 # Back to Perl cpan (Bio::Phylo::IO needed R library(phytools) and R library(phylosim))
-# Even with those R libraries, it still fails, though. If not forced, the below fails because of a silly web connection error:
+# Even with those R libraries, it still fails, though. If not forced, the below fails because of a web connection error:
 # force install Bio::Phylo::IO
 
 
 
 # R 4.3.2 (2023-12-11):
-# module load gcc/13.1.0; export CC=/hpcf/authorized_apps/rhel8_apps/gcc/13.1.0/install/bin/gcc; gcc -v
+# module load gcc/13.1.0; export CC=$(which gcc); gcc -v
 # module load libxml2
 # module load libgit2
 # download & install https://github.com/libgit2/libgit2/archive/refs/tags/v1.7.1.tar.gz
@@ -136,7 +136,7 @@ our $politemode = 0;
 # install.packages("usethis")
 
 # Perl 5.38.2 (2023-12-11):
-# module load gcc/13.1.0; export CC=/hpcf/authorized_apps/rhel8_apps/gcc/13.1.0/install/bin/gcc; gcc -v
+# module load gcc/13.1.0; export CC=$(which gcc); gcc -v
 # module load libxml2
 # module load libgit2
 # cpan
@@ -168,7 +168,7 @@ our $politemode = 0;
 # compiled & installed expat https://github.com/libexpat/libexpat/releases/download/R_2_5_0/expat-2.5.0.tar.xz
 # install XML::Parser
 # look XML::Parser
-# perl Makefile.PL EXPATLIBPATH=/home/blang1/lib EXPATINCPATH=/home/blang1/include
+# perl Makefile.PL EXPATLIBPATH=$HOME/lib EXPATINCPATH=$HOME/include
 # install JSON::DWIW
 # force install JSON::Any
 # install Test::JSON
@@ -258,7 +258,7 @@ sub showe
 
 sub locale
 {
-	return `/home/blang1/home/scripts/locale.sh`;
+	return `~/home/scripts/locale.sh`;
 }
 
 sub round
@@ -2221,7 +2221,7 @@ sub showdis
 # 	run("Submitting $this", "qsub -wd '$rwd/running/$this' -N 'bl$this' -e '$rwd/running/$this/_ERROR_.txt' -o '$rwd/running/$this/_OUTPUT_.txt' '$lwd/running/$this/_SCRIPT_.sh' '$this'", !switch('debug'));
 # }
 #
-# 3307043 0.34775 j18196.sh  qwang        dr    11/20/2010 02:43:45 all.q@fmb23.lmb.internal           1
+# 3307043 0.34775 j18196.sh  user         dr    11/20/2010 02:43:45 all.q@node01           1
 # 3317941 0.26470 nd2        blang        qw    11/25/2010 18:47:28                                    1
 #
 
@@ -2276,7 +2276,7 @@ sub mynodes			# get number of BLADE farm CPUs currently running my jobs.
             # Split input
         	@a = split(/ +/, $_);
 
-            if (($a[14] eq '/home/blang1/home/bin/perl') and ($a[15] eq '-w') and ($a[16] =~ /\.pl$/))
+            if (($a[14] =~ /(^|\/)perl$/) and ($a[15] eq '-w') and ($a[16] =~ /\.pl$/))
         	{
                 # Count jobs
                 $n++;
@@ -2364,12 +2364,12 @@ sub thesenodes			# get number of CPUs currently running jobs from a particular p
             # Split input
         	@a = split(/ +/, $_);
 
-            if (($a[14] eq '/home/blang1/home/bin/perl') and ($a[15] eq '-w') and ($a[16] =~ /\.pl$/))
+            if (($a[14] =~ /(^|\/)perl$/) and ($a[15] eq '-w') and ($a[16] =~ /\.pl$/))
             {
         	    # Process output
                 @b = @a;
                 splice(@b, 0, 16);
-                $b[0] =~ s/^\/home\/blang1\///;
+                $b[0] =~ s/^\Q$ENV{HOME}\E\///;
 
                 # "update_splice_elm"
                 $locale = locale();
@@ -2853,7 +2853,7 @@ sub setswitch
 
 sub startr
 {
-	our $superreservedrvariablethingy = Statistics::R -> new( r_bin => "/home/blang1/home/bin/R" );
+	our $superreservedrvariablethingy = Statistics::R -> new();
 
 	runr("options(max.print=1000000000)");
 }
@@ -3082,7 +3082,7 @@ sub runR
 	print R "$s\n";
 	close(R);
 
-	run("R", "/home/blang1/home/bin/R --vanilla --slave < $rin > $rout", 1);
+	run("R", "R --vanilla --slave < $rin > $rout", 1);
 
 	open(R, $rout) or die("\nError: Couldn't open '$rout'\n\n");
 	print "\n" if ($loud == 1);
@@ -3130,7 +3130,7 @@ sub fisher
 	print R "str(f)\n";
 	close(R);
 
-	run("R", "/home/blang1/home/bin/R --vanilla --slave < $rin > $rout", 1);
+	run("R", "R --vanilla --slave < $rin > $rout", 1);
 
 	open(R, $rout) or die("\nError: Couldn't open '$rout'\n\n");
 	my $p = undef;
@@ -3188,7 +3188,7 @@ sub chisquare
 	print R "str(f)\n";
 	close(R);
 
-	run("R", "/home/blang1/home/bin/R --vanilla --slave < $rin > $rout", 1);
+	run("R", "R --vanilla --slave < $rin > $rout", 1);
 
 	open(R, $rout) or die("\nError: Couldn't open '$rout'\n\n");
 	my $p = undef;
@@ -3249,7 +3249,7 @@ sub ttest
 	print R "str(f)\n";
 	close(R);
 
-	run("R", "/home/blang1/home/bin/R --vanilla --slave < $rin > $rout", 1);
+	run("R", "R --vanilla --slave < $rin > $rout", 1);
 
 	open(R, $rout) or die("\nError: Couldn't open '$rout'\n\n");
 	my $p = undef;
@@ -3317,7 +3317,7 @@ sub wilcoxon
 	print R "str(f)\n";
 	close(R);
 
-	run("R", "/home/blang1/home/bin/R --vanilla --slave < $rin > $rout", 1);
+	run("R", "R --vanilla --slave < $rin > $rout", 1);
 
 	open(R, $rout) or die("\nError: Couldn't open '$rout'\n\n");
 	my $p = undef;
@@ -3385,7 +3385,7 @@ sub ks
 	print R "str(f)\n";
 	close(R);
 
-	run("R", "/home/blang1/home/bin/R --vanilla --slave < $rin > $rout", 1);
+	run("R", "R --vanilla --slave < $rin > $rout", 1);
 
 	open(R, $rout) or die("\nError: Couldn't open '$rout'\n\n");
 	my $p = undef;
@@ -3448,7 +3448,7 @@ sub ksboot
 	print R "str(f)\n";
 	close(R);
 
-	run("R", "/home/blang1/home/bin/R --vanilla --slave < $rin > $rout", 1);
+	run("R", "R --vanilla --slave < $rin > $rout", 1);
 
 	open(R, $rout) or die("\nError: Couldn't open '$rout'\n\n");
 	my $p = undef;
@@ -3486,7 +3486,7 @@ sub ksboot
 # Close(OUT, $outfile, "Oncomine", 1);
 #
 #
-# run("Some other script lol :D", "thatotherscript.pl -aples", 1)		# 1 means silent mode!
+# run("Some other script", "thatotherscript.pl -aples", 1)		# 1 means silent mode!
 #
 
 sub Open
@@ -3559,12 +3559,12 @@ sub run
 #		if ($silent != 1) { print; }
 #	}
 
-	# Replace ~ with /home/blang1/home
+	# Replace ~ with the home directory
 	# $command =~ s/^~/\/home\/blang\/home/;
-	$command =~ s/^~/\/home\/blang1/;
+	$command =~ s/^~/$ENV{HOME}/;
 
 	system($command);
-	# system(" . /home/blang1/home/.login && $command");
+	# system(" . ~/.login && $command");
 
 	#print "\n -- Press ENTER to continue -- \n";
 	#<STDIN>;#
@@ -3587,8 +3587,8 @@ sub cd
 		print "\n( ---------------------------------------------------------------------------- )\n\n";
 	}
 
-	# Replace ~ with /home/blang1/home
-	$directory =~ s/^~/\/home\/blang1/;
+	# Replace ~ with the home directory
+	$directory =~ s/^~/$ENV{HOME}/;
 
 	chdir($directory);
 

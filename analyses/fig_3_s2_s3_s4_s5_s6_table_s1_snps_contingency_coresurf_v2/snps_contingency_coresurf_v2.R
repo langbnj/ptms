@@ -1091,7 +1091,7 @@ analyse_contingency_coresurf <- function(plddt_filtering = 0) {
   # plot_variants_bin2d("d", ptms1000, 36, "Cancer Gene Census", "E3d-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1))
   # plot_variants_bin2d("e", ptms1000, 36, "Clinically significant variants", "E3e-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1))
   # 
-  # # Figure E3 (Extended Figure 3 with ptms17 instead of ptms11), and showing insignificant comparisons (not used, too confusing/useless)
+  # # Figure E3 (Extended Figure 3 with ptms17 instead of ptms11), and showing insignificant comparisons (not used)
   # plot_variants_bin2d("a", ptms1000, 36, "Common natural variants", "E3a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001), show_insig = T)
   # plot_variants_bin2d("b", ptms1000, 36, "Rare natural variants", "E3b-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001), show_insig = T)
   # plot_variants_bin2d("c", ptms1000, 36, "Recurrent cancer mutations", "E3c-snps_cosmic-recurrent-ac-gte10", snps_cosmic %>% filter(ac >= 10), show_insig = T)

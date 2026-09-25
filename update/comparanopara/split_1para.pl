@@ -65,7 +65,7 @@ while (($ensp) = Fetch($mainquery))
 	
 	# Write homolog sequences (rest of the homology cluster)
 	# Homology types documentation: https://useast.ensembl.org/info/genome/compara/homology_types.html
-	# Using sorting elaborated in ~/Documents/MySQL/comparahomology.sql
+	# Using sorting elaborated in comparahomology.sql
 	if (switch('hc'))
 	{
 		# hc=1 only

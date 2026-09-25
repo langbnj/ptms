@@ -95,7 +95,7 @@ t = read_tsv(cgcfile)
 # SELECT * FROM ensembl_gff3_gene g, ensembl e WHERE g.symbol IN ('MDS2', 'HMGN2P46') AND g.species='human' AND g.ensg=e.ensg;
 # >> VEP 108 will in all probability not call protein-level consequences for these two.
 
-# Out of the 734 listed ENSGs, 730 are in uniens (see ~/Documents/MySQL/snps_cosmic.sql).
+# Out of the 734 listed ENSGs, 730 are in uniens (see snps_cosmic.sql).
 # >> Going ahead with the 734 and ignoring the other 9. I can't map these specifically enough to use them.
 
 # Get ENSGs from cgc data frame

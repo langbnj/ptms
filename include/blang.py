@@ -106,7 +106,7 @@ d = ipdb.set_trace
 # d = pudb.set_trace
 # >> Way overloaded full-screen debugger, with hardly any space to see output
 
-# # pdb++ debugger (which replaces pdb, annoyingly - need to do "pip uninstall pdbpp" to remove it, and pdb.pdb.set_trace to still get standard pdb with it installed. The prompt will show what's installed (Pdb or Pdb++))
+# # pdb++ debugger (which replaces pdb; need to do "pip uninstall pdbpp" to remove it, and pdb.pdb.set_trace to still get standard pdb with it installed. The prompt will show what's installed (Pdb or Pdb++))
 # # pip install pdbpp
 # # pip uninstall pdbpp
 # import pdb

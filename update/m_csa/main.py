@@ -142,7 +142,7 @@ t = pd.read_json(infile)
 # residue_chains
 # True    5201
 # Name: count, dtype: int64
-# >> is_reference is useless (never False).
+# >> is_reference is uninformative (never False).
 
 # residue_sequences
 # There is always a single residue_sequence:

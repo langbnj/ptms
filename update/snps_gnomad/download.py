@@ -54,7 +54,7 @@ Run(f"Download v{rel3} WGS", f"gsutil -m cp gs://gcp-public-data--gnomad/release
 
 
 
-# Note: There are also "constraint" scores, but they are at the gene and transcript level and therefore useless for individual residues and protein regions (https://gnomad.broadinstitute.org/help/constraint, gsutil -m cat gs://gcp-public-data--gnomad/release/4.0/constraint/gnomad.v4.0.constraint_metrics.tsv | b).
+# Note: There are also "constraint" scores, but they are at the gene and transcript level and therefore not informative for individual residues and protein regions (https://gnomad.broadinstitute.org/help/constraint, gsutil -m cat gs://gcp-public-data--gnomad/release/4.0/constraint/gnomad.v4.0.constraint_metrics.tsv | b).
 
 
 

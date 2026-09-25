@@ -7,7 +7,7 @@ then
 	# echo "> No command given, showing queue instead:";
 	# echo "--------------------------------------------------------------------------------";
 	echo
-	/home/blang1/scripts/showqueue.pl
+	~/scripts/showqueue.pl
 	echo
 	exit
 fi
@@ -20,7 +20,7 @@ then
 	# # Absolute path this script is in. /home/user/bin
 	# DIR=`dirname $DIR`
 	# echo "DIR $DIR"
-	# # Strip /home/blang1/
+	# # Strip the home directory
 	# DIR=`echo $DIR | sed 's/^\/home\/lang\/home\/*//'`
 	# echo "DIR $DIR"
 	# # Get Name
@@ -35,11 +35,11 @@ then
 	# Absolute path to this script. /home/user/bin/foo.sh
 	ORIGNAME="$PWD/`basename $1`"
 	# echo "ORIGNAME $ORIGNAME"
-	# Strip /home/lang/home/
+	# Strip the home directory
 	ARGS=$@
 	shift
 	NAME=$ORIGNAME
-	NAME=`echo $NAME | sed 's/^\/home\/blang1\/*//'`
+	NAME=`echo $NAME | sed "s|^$HOME/*||"`
 	NAME=`echo $NAME $@`
 	MYNAME=$NAME
 	# echo "NAME $NAME"
@@ -81,7 +81,7 @@ echo "echo \"===================================================================
 echo "echo \"> $ARGS (\`hostname\`)\"" >> log-command-$NAME.txt
 echo "echo \"================================================================================\"" >> log-command-$NAME.txt
 echo "echo" >> log-command-$NAME.txt
-echo "source /home/blang1/.bash_profile" >> log-command-$NAME.txt
+echo "source ~/.bash_profile" >> log-command-$NAME.txt
 echo "echo" >> log-command-$NAME.txt
 echo "$ARGS" >> log-command-$NAME.txt
 echo "export STOP=\`date +%s\`" >> log-command-$NAME.txt

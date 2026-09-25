@@ -10,7 +10,7 @@
 #   Rscript plot_surfdist_3d.R
 #   Rscript plot_surfdist_3d.R path/to/output-surfdist-3d.csv
 
-source("relevant_files_for_context/blang.R")
+blang_init()
 
 # ---------------------------------------------------------------------------
 # Read data
