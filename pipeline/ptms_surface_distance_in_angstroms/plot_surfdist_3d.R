@@ -38,6 +38,12 @@ keep_ptms <- c(
 d <- d %>% filter(ptmbin == "Control" | ptm %in% keep_ptms)
 cat(sprintf("Final rows after keeping %d specified PTM types: %d\n", length(keep_ptms), nrow(d)))
 
+# Count each site once. A site annotated in several databases, or with several
+# modification types, has several rows in the input.
+d_types <- d %>% distinct(acc, site, ptm, ptmbin, .keep_all = TRUE)  # once per modification type
+d <- d %>% distinct(acc, site, ptmbin, .keep_all = TRUE)              # once overall
+cat(sprintf("Unique sites: %d modified, %d control\n", sum(d$ptmbin == "Modified"), sum(d$ptmbin == "Control")))
+
 out_stem <- tools::file_path_sans_ext(csv_path)
 
 # ---------------------------------------------------------------------------
@@ -96,7 +102,7 @@ label_text <- sprintf("µ(Control) = %.2f Å\nµ(Modified) = %.2f Å\n%s", mu_ct
     scale_x_continuous(expand = c(0, 0)) +
     scale_y_continuous(expand = expansion(mult = c(0, 0.15)), breaks = pretty_breaks(3)) +
     coord_cartesian(xlim = c(0, NA)) +
-    xlab("Distance to nearest heavy (C/N/O/S) surface atom (Å)") +
+    xlab("Distance to nearest surface residue (Å)") +
     ylab("Probability density") +
     theme_nature(legend_position = "top", extra_margin_right = 10) +
     theme(plot.margin = unit(c(5.5, 15, 5.5, 20), "pt"))
@@ -111,11 +117,12 @@ cat(sprintf("Saved %s-density-control_vs_modified.pdf\n", out_stem))
 ptm_order <- keep_ptms
 
 # Filter for the relevant PTMs
-d_modified <- d %>% filter(ptmbin == "Modified", ptm %in% ptm_order)
+d_modified <- d_types %>% filter(ptmbin == "Modified", ptm %in% ptm_order) %>%
+  mutate(freq = 1, ptmbin = factor(ptmbin, levels = c("Modified", "Control")))
 
 # For each PTM, include ALL controls of the matching amino acid(s) in its facet
 # PTM-to-AA mapping for expanding controls
-ptm_aa_map <- d %>% 
+ptm_aa_map <- d_types %>% 
   filter(ptmbin == "Modified", ptm %in% ptm_order) %>% 
   group_by(ptm, aa) %>% 
   summarise(.groups = "drop")
@@ -167,7 +174,7 @@ if (nrow(ptm_aa_map) == 0) {
       scale_y_continuous(expand = expansion(mult = c(0, 0.05)), breaks = pretty_breaks(2)) +
       coord_cartesian(xlim = c(0, NA)) +
       facet_wrap(vars(ptm), ncol = 3, scales = "free_y", dir = "h", axes = "all", axis.labels = "all") +
-      xlab("Distance to nearest heavy (C/N/O/S) surface atom (Å)") +
+      xlab("Distance to nearest surface residue (Å)") +
       ylab("Probability density") +
       theme_nature(legend_position = "bottomright", axis_fontsize = 6, extra_margin_right = 10) +
       theme(plot.margin = unit(c(5.5, 15, 5.5, 20), "pt"))
