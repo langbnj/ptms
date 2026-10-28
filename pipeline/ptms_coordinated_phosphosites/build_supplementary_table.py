@@ -159,6 +159,15 @@ NOTES = [
     "entries in which the site is resolved' lists these entries, with those in which the site is "
     "buried and fully coordinated first and marked with an asterisk.",
 
+    # Checked against the deposited coordinates of every entry listed for these three sites
+    "Alternative positions: Where part of a residue is modelled in alternative positions "
+    "(alternate locations), position A was used. This applies to the phosphoresidue or a "
+    "coordinating Lys or Arg of three sites in some of their entries: PGM1 pSer117 (5VBI, 5VG7), "
+    "PDPK1 pSer241 (Arg129 in 4AW0, 4AW1, 4RQK, 4RRV, 4XX9 and 5LVO) and PRKACA pThr198 (Lys189 "
+    "in 4WB5). All three sites are buried and fully coordinated in at least one entry whichever "
+    "position is used. Only the coordination by Arg23 of PGM1 depends on the position, in 5VG7 "
+    "(position A only) and 5VBI (position B only).",
+
     "Kinase structural context: Kinase domains are from the Kincore alignment of human protein "
     "kinase domains (Modi & Dunbrack, 2019), in which the activation loop runs from the DFG to "
     "the APE motif.",
