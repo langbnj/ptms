@@ -967,8 +967,9 @@ def main(args: argparse.Namespace) -> None:
             chunk.to_csv(
                 out_fh,
                 index=False,
-                header=(write_header and i == 0),
+                header=write_header,
             )
+            write_header = False
             out_fh.flush()
 
             # ── 7. Per-protein success log ─────────────────────────────────────

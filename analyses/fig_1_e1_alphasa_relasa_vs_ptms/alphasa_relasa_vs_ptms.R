@@ -300,7 +300,8 @@ dissurf_aaweight
 # Add to q
 q %<>% left_join(dissurf_aaweight, join_by(dis, aa))
 # Set PTM site weight to 1 (only Control should be weighted)
-q %<>% mutate(freq = ifelse(ptmbin == "Modified", 1, dissurf_aafreq))
+# Divide by the number of control residues of each aa, so that the control weights of each aa sum to its frequency among PTM sites
+q %<>% group_by(ptmbin, aa) %>% mutate(freq = ifelse(ptmbin == "Modified", 1, freq / n_distinct(acc, site))) %>% ungroup
 
 # Load evorates from ../evolutionary_rate_finding_best_stratification/tmp-dataframe-….txt
 source <- "all"
@@ -469,7 +470,9 @@ my_disordered_fraction <- scales::percent(my_disordered_fraction, accuracy = 0.1
   scale_colour_manual(values = ptmcol, aesthetics = c("colour", "fill"), name = NULL, guide = guide_legend(reverse = T)) +
   # scale_colour_viridis_d(aesthetics = c("colour", "fill"), name = NULL, guide = guide_legend(reverse = T)) +
   scale_x_continuous(expand = c(0, 0), breaks = c(0, 0.25, 0.55, 1), labels = c("0", "0.25", "0.55", "1")) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15)), breaks = pretty_breaks(2)) +
+  scale_y_continuous(expand = c(0, 0), breaks = pretty_breaks(2)) +
+  # End the y axis just below 4
+  coord_cartesian(ylim = c(0, 3.9)) +
   # scale_x_continuous(limits = c(0, 1)) +
   # coord_cartesian(xlim = c(0, 1)) +
   # coord_cartesian(xlim = c(0, 1), ylim = c(0, 3)) +
@@ -712,7 +715,7 @@ my_plddt90_pae1_disordered_fraction <- scales::percent(my_plddt90_pae1_disordere
     scale_x_continuous(expand = c(0, 0), breaks = c(0, 0.25, 0.55, 1), labels = c("0", "0.25", "0.55", "1")) +
     scale_y_continuous(expand = expansion(mult = c(0, 0.15)), breaks = pretty_breaks(2)) +
     theme_minimal() +
-    labs(tag = "c") +
+    labs(tag = "d") +
     xlab("RSA (pLDDT ≥ 90, PAE ≤ 1)") +
     ylab("Probability density") +
     theme_nature(legend_position = "top") +
@@ -1118,7 +1121,7 @@ tmpptm <- buriedptms
     scale_x_continuous(expand = c(0, 0), breaks = c(0, 0.25, 0.55, 1), labels = c("0", "0.25", "0.55", "1")) +
     scale_y_continuous(expand = expansion(mult = c(0, 0.1)), breaks = pretty_breaks(2)) +
     coord_cartesian(xlim = c(0, 1)) +
-    labs(tag = "d") +
+    labs(tag = "e") +
     xlab("RSA (pLDDT ≥ 70, confident)") +
     ylab("Probability density") +
     theme_nature(legend_position = "top") +

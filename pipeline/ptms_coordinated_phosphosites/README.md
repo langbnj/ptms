@@ -61,10 +61,10 @@ Expected counts, printed by `summarise_phosphosites.py`:
 
 | | |
 | --- | --- |
-| Unique coordinated phosphosites | 101, in 71 proteins |
+| Unique coordinated phosphosites | 102, in 72 proteins |
 | Fully coordinated (two or more Lys/Arg) | 69 |
-| Buried within the chain | 29 |
-| Buried and fully coordinated in the same chain | 23, in 19 proteins |
+| Buried within the chain | 28 |
+| Buried and fully coordinated in the same chain | 22, in 18 proteins |
 | of which in every entry in which the site is resolved | 9 |
 | in at least half of those entries | 16 |
 

@@ -111,13 +111,14 @@ q %<>% filter(ptm %in% ptm1000)
 # aaweight <- q %>% filter(type == "ptm") %>% group_by(aa) %>% tally %>% mutate(freq = n / sum(n)) %>% arrange(desc(n)) %>% select(aa, freq)
 # aaweight <- q %>% select(acc, site, aa, type) %>% unique %>% filter(type == "ptm") %>% group_by(aa) %>% tally %>% mutate(freq = n / sum(n)) %>% arrange(desc(n)) %>% select(aa, freq)
 # aaweight
-aadisweight <- q %>% select(acc, site, aa, type, dis) %>% unique %>% filter(type == "ptm") %>% group_by(aa, dis) %>% tally %>% mutate(freq = n / sum(n)) %>% arrange(desc(n)) %>% select(aa, dis, freq)
+aadisweight <- q %>% select(acc, site, aa, type, dis) %>% unique %>% filter(type == "ptm") %>% group_by(dis, aa) %>% tally %>% mutate(freq = n / sum(n)) %>% arrange(desc(n)) %>% select(aa, dis, freq)
 aadisweight
 # Add weights to q
 # q %<>% left_join(aaweight, join_by(aa))
 q %<>% left_join(aadisweight, join_by(aa, dis))
 # Set PTM site weight to 1 (only Control should be weighted)
-q %<>% mutate(freq = ifelse(type == "ptm", 1, freq))
+# Divide by the number of control residues of each aa in each category, so that the control weights of each aa sum to its frequency among PTM sites in that category
+q %<>% group_by(type, aa, dis) %>% mutate(freq = ifelse(type == "ptm", 1, freq / n_distinct(acc, site))) %>% ungroup
 q
 
 
@@ -180,7 +181,7 @@ if (disfilt == 1) {
     ggplot(aes(x = relsite, colour = ptm, fill = ptm, weight = freq)) +
     geom_density(alpha = 0.3, bounds = c(0, 1)) +
     geom_vline(data = function(x) x %>% group_by(ptm, dis) %>% summarise(mediansite = median(relsite)), aes(xintercept = mediansite), linetype = "solid") +
-    geom_vline(data = function(x) x %>% filter(ptm == "Control") %>% group_by(dis) %>% summarise(control_median = Hmisc::wtd.quantile(relsite, weights=freq, probs=0.5)), aes(xintercept = control_median), color = "grey50", linetype = "solid") +
+    geom_vline(data = function(x) x %>% filter(ptm == "Control") %>% group_by(dis) %>% summarise(control_median = Hmisc::wtd.quantile(relsite, weights=freq, probs=0.5, normwt=TRUE)), aes(xintercept = control_median), color = "grey50", linetype = "solid") +
     # geom_vline(data = function(x) x %>% group_by(ptm, dis) %>% summarise(meansite = mean(site)), aes(xintercept = meansite), linetype = "dashed") +
     # geom_vline(xintercept = q %>% filter(len >= maxsite & site <= maxsite & type == "control") %>% pull(site) %>% median, colour = "grey", linetype = "dashed") +
     # geom_vline(xintercept = q %>% filter(len >= maxsite & site <= maxsite & type == "control") %>% pull(site) %>% mean, colour = "grey", linetype = "dashed") +
@@ -340,7 +341,7 @@ if (disfilt == 1) {
     ggplot(aes(x = site, colour = ptm, fill = ptm, weight = freq)) +
     geom_density(alpha = 0.3, bounds = c(1, maxsite)) +
     geom_vline(data = function(x) x %>% group_by(ptm, dis) %>% summarise(mediansite = median(site)), aes(xintercept = mediansite), linetype = "solid") +
-    geom_vline(data = function(x) x %>% filter(ptm == "Control") %>% group_by(dis) %>% summarise(control_median = Hmisc::wtd.quantile(site, weights=freq, probs=0.5)), aes(xintercept = control_median), color = "grey50", linetype = "solid") +
+    geom_vline(data = function(x) x %>% filter(ptm == "Control") %>% group_by(dis) %>% summarise(control_median = Hmisc::wtd.quantile(site, weights=freq, probs=0.5, normwt=TRUE)), aes(xintercept = control_median), color = "grey50", linetype = "solid") +
     # geom_vline(data = function(x) x %>% group_by(ptm, dis) %>% summarise(meansite = mean(site)), aes(xintercept = meansite), linetype = "dashed") +
     # geom_vline(xintercept = q %>% filter(len >= maxsite & site <= maxsite & type == "control") %>% pull(site) %>% median, colour = "grey", linetype = "dashed") +
     # geom_vline(xintercept = q %>% filter(len >= maxsite & site <= maxsite & type == "control") %>% pull(site) %>% mean, colour = "grey", linetype = "dashed") +

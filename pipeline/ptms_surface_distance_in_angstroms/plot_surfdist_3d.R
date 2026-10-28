@@ -50,11 +50,12 @@ out_stem <- tools::file_path_sans_ext(csv_path)
 # Prepare weighting for global density plot
 # (Weight Control residues by AA frequencies of Modified residues)
 # ---------------------------------------------------------------------------
+# Each Control residue gets weight f_mod(aa) / n_ctrl(aa), so that the weights of the Control
+# residues of each amino acid sum to its frequency among Modified residues
 aaweight <- d %>% 
-  filter(ptmbin == "Modified") %>% 
   group_by(aa) %>% 
-  tally(name = "n_mod") %>% 
-  mutate(freq = n_mod / sum(n_mod)) %>% 
+  summarise(n_mod = sum(ptmbin == "Modified"), n_ctrl = sum(ptmbin == "Control")) %>% 
+  mutate(freq = n_mod / sum(n_mod) / n_ctrl) %>% 
   select(aa, freq)
 
 d <- d %>% left_join(aaweight, by = "aa")
@@ -68,7 +69,8 @@ d <- d %>% mutate(ptmbin = factor(ptmbin, levels = c("Modified", "Control")))
 # 1. Overall density plot (Modified vs Control)
 # ---------------------------------------------------------------------------
 # Note: Wilcoxon test does not use weights trivially, so we run the standard unweighted test
-res_wilcox <- wilcox.test(surf_dist_3d_ang ~ ptmbin, data = d)
+# (on Control residues of the modified amino acids only, i.e. those with weight > 0)
+res_wilcox <- wilcox.test(surf_dist_3d_ang ~ ptmbin, data = d %>% filter(freq > 0))
 
 # p-value formatting helper (reports down to IEEE 754 double precision limit)
 fmt_pval <- function(p) {

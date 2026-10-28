@@ -30,7 +30,7 @@ Method
     and the largest kept.
 
     Running the standard residues through the same procedure reproduces the
-    published theoretical values to within about 8%. The offset is
+    published theoretical values to within about 6% (10% for Ser). The offset is
     systematic and cancels in the phospho/parent ratio, which is the only
     quantity carried forward: each phosphoresidue reference is the Tien
     Empirical value for its parent, scaled by that ratio.
@@ -221,6 +221,9 @@ def gly_x_gly(code, phi, psi, torsions):
             if atom == "OXT" and index != 3:
                 continue
             placed[atom] = rotation.dot(xyz - source.mean(0)) + target.mean(0)
+        # The carbonyl O lies in the plane of the following peptide bond
+        if index != 3:
+            placed["O"] = place_atom(placed["N"], placed["CA"], placed["C"], 1.231, 120.8, psi + 180.0)
         if index == 2:
             for (axis, movers), angle in zip(SIDECHAIN_TORSIONS.get(code, []), torsions):
                 rotate_about_bond(placed, axis, movers, angle)

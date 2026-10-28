@@ -486,7 +486,7 @@ analyse_contingency_coresurf <- function(plddt_filtering = 0) {
   # ptms1000 %<>% pull(ptm)
   # ptms1000
   # Get PTM types with at least 1000 sites
-  ptms1000 <- c("R-me", "K-sum", "S-gly", "K-me", "T-gly", "S-p", "K-ac", "T-p", "K-ub", "K-mal", "K-suc", "N-gly", "Y-p", "M-ox", "C-pal", "C-glt", "C-nit") # Order as in alphasa "all ptms" figure (all >1000, ptms1000 I suppose)
+  ptms1000 <- c("S-p", "T-p", "K-ub", "Y-p", "K-ac", "K-sum", "R-me", "T-gly", "S-gly", "K-mal", "M-ox", "K-me", "N-gly", "C-glt", "K-suc", "C-pal", "C-nit") # Order by number of known sites, as in the Methods and Supplementary Figs 2 and 3
   
   
   # # Get PTM types with at least 2000 sites
@@ -942,6 +942,21 @@ analyse_contingency_coresurf <- function(plddt_filtering = 0) {
     # Set ac to 0 if NA
     qsnp %<>% mutate(ac = ifelse(is.na(ac), 0, ac))
     
+    # Count each residue once (variable if it has at least one variant)
+    qsnp %<>% group_by(ptm, acc, site, aa, type, dis) %>% summarise(ac = max(ac), .groups = "drop")
+    
+    # Phosphorylation sites combined (STY-p), tested with a Cochran-Mantel-Haenszel test stratified by residue type
+    # (control fraction weighted by the number of modified residues of each type; counts as double to avoid integer overflow)
+    qsty <- qsnp %>%
+      filter(ptm %in% c("S-p", "T-p", "Y-p")) %>%
+      group_by(dis) %>%
+      summarise(
+        frac0_ptm = mean(ac[type == "ptm"] == 0),
+        frac0_control = sum(sapply(unique(ptm), function(p) mean(ptm[type == "ptm"] == p) * mean(ac[type == "control" & ptm == p] == 0))),
+        frac0_p_value = mantelhaen.test(1 * table(factor(type, levels = c("ptm", "control")), factor(ac == 0, levels = c(TRUE, FALSE)), as.character(ptm)))$p.value,
+        .groups = "drop") %>%
+      mutate(ptm = "STY-p", frac0_dif = frac0_ptm - frac0_control)
+    
     # Using ptms1000 instead for a consistent set of PTMs with a reasonable number of known sites
     # # Ensure we have all 6 combinations of modified/control and buried/structured/surface for each PTM type
     # myptms <- q %>% group_by(ptm) %>% summarise(combinations = n_distinct(dis, type)) %>% filter(combinations == 6) %>% pull(ptm) %>% unique
@@ -964,6 +979,7 @@ analyse_contingency_coresurf <- function(plddt_filtering = 0) {
         frac0_fisher = fisher.test(matrix(c(n0_ptm, n0_control, n_ptm - n0_ptm, n_control - n0_control), nrow = 2))$p.value
       ) %>%
       summarise(ptm, dis, frac0_ptm, frac0_control, frac0_dif, frac0_p_value = frac0_fisher, .groups = "drop")
+    qsnp <- bind_rows(qsnp, qsty)
     
     # Replace NaN with NA (e.g. for C-pal disordered)
     qsnp %<>% filter(!is.na(frac0_dif))
@@ -998,6 +1014,11 @@ analyse_contingency_coresurf <- function(plddt_filtering = 0) {
       # my_theme <- theme(legend.position = "bottom")
       # my_theme <- theme()
       levels(qsnp$dis) <- c("Buried", "Structured  ", "  Disordered")
+    }
+    
+    # Show the combined phosphorylation row at the top
+    if ("Y-p" %in% tmpptm) {
+      tmpptm <- c("STY-p", tmpptm)
     }
     
     tmp_insig <- ""
@@ -1071,11 +1092,12 @@ analyse_contingency_coresurf <- function(plddt_filtering = 0) {
   # # plot_variants_bin2d("d", ptms11, 40, "Cancer Gene Census mutations", "3d-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1))
   # 
   # # Figure 3 (slightly narrower to fit 180 = 36 * 5 plots)
+  # # (b-e at pLDDT 90 & PAE 1 are Supplementary Fig. 5a-d)
   # plot_variants_bin2d("a", ptms11, 36, "Common natural variants", "3a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001))
-  # plot_variants_bin2d("b", ptms11, 36, "Rare natural variants", "3b-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001))
-  # plot_variants_bin2d("c", ptms11, 36, "Recurrent cancer mutations", "3c-snps_cosmic-recurrent-ac-gte10", snps_cosmic %>% filter(ac >= 10))
-  # plot_variants_bin2d("d", ptms11, 36, "Cancer Gene Census", "3d-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1))
-  # plot_variants_bin2d("e", ptms11, 36, "Clinically significant variants", "3e-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1))
+  # plot_variants_bin2d(ifelse(plddt_filtering == "90_PAE1", "a", "b"), ptms11, 36, "Rare natural variants", "3b-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001))
+  # plot_variants_bin2d(ifelse(plddt_filtering == "90_PAE1", "b", "c"), ptms11, 36, "Recurrent cancer mutations", "3c-snps_cosmic-recurrent-ac-gte10", snps_cosmic %>% filter(ac >= 10))
+  # plot_variants_bin2d(ifelse(plddt_filtering == "90_PAE1", "c", "d"), ptms11, 36, "Cancer Gene Census", "3d-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1))
+  # plot_variants_bin2d(ifelse(plddt_filtering == "90_PAE1", "d", "e"), ptms11, 36, "Clinically significant variants", "3e-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1))
   # 
   # # Figure 3 (ptms9) (slightly narrower to fit 160 = 32 * 5 plots)
   # plot_variants_bin2d("a", ptms9, 32, "Common variants", "ptms9-3a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001))
@@ -1085,11 +1107,12 @@ analyse_contingency_coresurf <- function(plddt_filtering = 0) {
   # plot_variants_bin2d("e", ptms9, 32, "Clinically significant", "ptms9-3e-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1))
   # 
   # # Figure E3 (Extended Figure 3 with ptms17 instead of ptms11)
-  # plot_variants_bin2d("a", ptms1000, 36, "Common natural variants", "E3a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001))
-  # plot_variants_bin2d("b", ptms1000, 36, "Rare natural variants", "E3b-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001))
-  # plot_variants_bin2d("c", ptms1000, 36, "Recurrent cancer mutations", "E3c-snps_cosmic-recurrent-ac-gte10", snps_cosmic %>% filter(ac >= 10))
-  # plot_variants_bin2d("d", ptms1000, 36, "Cancer Gene Census", "E3d-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1))
-  # plot_variants_bin2d("e", ptms1000, 36, "Clinically significant variants", "E3e-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1))
+  # # (Supplementary Fig. 2a-e without pLDDT filtering, f-j at pLDDT 70)
+  # plot_variants_bin2d(ifelse(plddt_filtering == "70", "f", "a"), ptms1000, 36, "Common natural variants", "E3a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001))
+  # plot_variants_bin2d(ifelse(plddt_filtering == "70", "g", "b"), ptms1000, 36, "Rare natural variants", "E3b-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001))
+  # plot_variants_bin2d(ifelse(plddt_filtering == "70", "h", "c"), ptms1000, 36, "Recurrent cancer mutations", "E3c-snps_cosmic-recurrent-ac-gte10", snps_cosmic %>% filter(ac >= 10))
+  # plot_variants_bin2d(ifelse(plddt_filtering == "70", "i", "d"), ptms1000, 36, "Cancer Gene Census", "E3d-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1))
+  # plot_variants_bin2d(ifelse(plddt_filtering == "70", "j", "e"), ptms1000, 36, "Clinically significant variants", "E3e-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1))
   # 
   # # Figure E3 (Extended Figure 3 with ptms17 instead of ptms11), and showing insignificant comparisons (not used)
   # plot_variants_bin2d("a", ptms1000, 36, "Common natural variants", "E3a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001), show_insig = T)
@@ -1384,8 +1407,9 @@ analyse_contingency_coresurf <- function(plddt_filtering = 0) {
   # plot_mimic_variants_bars("a", ptms11, 45, 10, "Common natural variants", "4a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001))
   plot_mimic_variants_bars("f", ptms11, 35, 60, 10, "Common variants", "3f-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001), "nodis")
   plot_mimic_variants_bars("g", ptms11, 50, 60, 10, "Rare variants (gnomAD)", "3g-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001), "nodis")
-  plot_mimic_variants_bars("h", ptms11, 35, 60, 10, "Clinically significant", "3h-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1), "nodis")
-  plot_mimic_variants_bars("i", ptms11, 60, 60, 10, "Cancer Gene Census (COSMIC)", "3i-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1), "nodis")
+  # (3h at pLDDT 70 and 3i at pLDDT 90 & PAE 1 are Supplementary Fig. 5e-f)
+  plot_mimic_variants_bars(ifelse(plddt_filtering == "70", "e", "h"), ptms11, 35, 60, 10, "Clinically significant", "3h-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1), "nodis")
+  plot_mimic_variants_bars(ifelse(plddt_filtering == "90_PAE1", "f", "i"), ptms11, 60, 60, 10, "Cancer Gene Census (COSMIC)", "3i-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1), "nodis")
   
   # # Supplementary Figure 4 efgh (without showing "Disordered", to make these plots more compact) (not used)
   # plot_mimic_variants_bars("e", ptms11, 35, 60, 10, "Common variants", "s4e-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001), "nodis")
@@ -1396,14 +1420,14 @@ analyse_contingency_coresurf <- function(plddt_filtering = 0) {
   # Figure 3 gh (phosphorylation only, showing gnomad-rare_variants and cosmic-cgc1)
   # plot_mimic_variants_bars("f", ptms11, 35, 60, 10, "Common variants", "3f-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001), "nodis")
   # plot_mimic_variants_bars("h", ptms11, 35, 60, 10, "Clinically significant", "3h-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1), "nodis")
-  plot_mimic_variants_bars("g", c("S-p", "T-p", "Y-p"), 30, 36, 10, "Rare natural variants", "3g-STY-p-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001), "nodis")
-  plot_mimic_variants_bars("h", c("S-p", "T-p", "Y-p"), 45, 36, 10, "Cancer Gene Census", "3h-STY-p-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1), "nodis")
+  plot_mimic_variants_bars("g", c("S-p", "T-p", "Y-p"), 30, 36, 40, "Rare natural variants", "3g-STY-p-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001), "nodis")
+  plot_mimic_variants_bars("h", c("S-p", "T-p", "Y-p"), 45, 36, 40, "Cancer Gene Census", "3h-STY-p-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1), "nodis")
   
   # Figure 4 (without showing "Disordered", to make these plots more compact)
-  plot_mimic_variants_bars("a", ptms11, 45, 80, 10, "Common natural variants", "4a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001), "nodis")
-  plot_mimic_variants_bars("b", ptms11, 85, 80, 10, "Rare natural variants", "4b-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001), "nodis")
-  plot_mimic_variants_bars("c", ptms11, 45, 80, 10, "Clinically significant variants", "4c-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1), "nodis")
-  plot_mimic_variants_bars("d", ptms11, 85, 80, 10, "Cancer Gene Census", "4d-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1), "nodis")
+  plot_mimic_variants_bars("a", ptms11, 45, 80, 40, "Common natural variants", "4a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001), "nodis")
+  plot_mimic_variants_bars("b", ptms11, 85, 80, 40, "Rare natural variants", "4b-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001), "nodis")
+  plot_mimic_variants_bars("c", ptms11, 45, 80, 40, "Clinically significant variants", "4c-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1), "nodis")
+  plot_mimic_variants_bars("d", ptms11, 85, 80, 40, "Cancer Gene Census", "4d-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1), "nodis")
   
   # Figure 4
   plot_mimic_variants_bars("a", ptms11, 45, 80, 10, "Common natural variants", "4a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001))

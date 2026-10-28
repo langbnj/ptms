@@ -139,7 +139,7 @@ MAX_ASA: dict[str, float] = {
     "GLN": 214.0, "GLU": 214.0, "GLY":  97.0, "HIS": 216.0, "ILE": 195.0,
     "LEU": 191.0, "LYS": 230.0, "MET": 203.0, "PHE": 228.0, "PRO": 154.0,
     "SER": 143.0, "THR": 163.0, "TRP": 264.0, "TYR": 255.0, "VAL": 165.0,
-    "SEP": 226.0, "TPO": 243.0, "PTR": 334.0,
+    "SEP": 228.0, "TPO": 236.0, "PTR": 328.0,
 }
 
 # Ubiquitin precursors, with the number of 76-residue ubiquitin units each begins
@@ -495,12 +495,13 @@ def split_by_chain(cif_text, wanted):
     return {chain: "\n".join(lines) for chain, lines in out.items()}
 
 
-def run_dssp(cif_text, workdir):
+def run_dssp(cif_text, workdir, chain=None):
     """Accessible surface area per residue, keyed by "chain|resnum|icode".
 
     DSSP is the program used for accessibility throughout this work. It works
     on the polymer alone, so ordered waters and bound ligands do not shield
-    the surface.
+    the surface. The classic DSSP format keeps only one character of the chain
+    ID, so for a single chain its full ID is passed in and used as the key.
     """
     path = os.path.join(workdir, "in.cif")
     out = os.path.join(workdir, "out.dssp")
@@ -525,7 +526,7 @@ def run_dssp(cif_text, workdir):
             resnum = int(line[5:10])
         except ValueError:
             continue
-        asa[f"{line[11]}|{resnum}|{line[10].strip()}"] = int(line[34:38])
+        asa[f"{chain or line[11]}|{resnum}|{line[10].strip()}"] = int(line[34:38])
     os.remove(out)
     return asa
 
@@ -552,7 +553,7 @@ def structure_asa(pdb_id, cif_text, chains):
         with tempfile.TemporaryDirectory() as workdir:
             for key in missing:
                 text = cif_text if key == "*" else by_chain.get(key)
-                cached[key] = run_dssp(text, workdir) if text else {}
+                cached[key] = run_dssp(text, workdir, None if key == "*" else key) if text else {}
         with open(path, "w") as fh:
             json.dump(cached, fh)
     return cached
@@ -577,6 +578,13 @@ def analyse_structure(pdb_id, cif_text):
         model = next(iter(structure))
     except Exception as exc:
         raise RuntimeError(f"parse failed: {exc}")
+
+    # Use one alternate conformation throughout (A, otherwise the first), rather than
+    # the highest-occupancy one for each atom, which can mix conformations
+    for atom in model.get_atoms():
+        if atom.is_disordered():
+            altlocs = atom.disordered_get_id_list()
+            atom.disordered_select("A" if "A" in altlocs else sorted(altlocs)[0])
 
     phos_by_chain = {}
     for chain in model:

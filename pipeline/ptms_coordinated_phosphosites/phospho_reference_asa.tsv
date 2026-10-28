@@ -3,6 +3,6 @@
 # see phospho_reference_asa.py. The parent value is the Empirical column of their Table 1,
 # scaled by the phospho/parent ratio measured here.
 residue	parent	ratio	reference_asa
-SEP	SER	1.580	226
-TPO	THR	1.491	243
-PTR	TYR	1.308	334
+SEP	SER	1.595	228
+TPO	THR	1.447	236
+PTR	TYR	1.285	328

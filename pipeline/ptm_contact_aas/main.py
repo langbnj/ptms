@@ -65,6 +65,8 @@ with open(outfile, "w") as out:
             siteclass = {}
             sitedis = {}
             sitesurf = {}
+            siteplddt = {}
+            siteplddt10 = {}
             for (site, dis, surf, plddt, plddt10) in Query(f"SELECT site, {discol}, {surfcol}, plddt, plddt10 FROM alphasa WHERE acc='{alphacc}' AND afdb='{afdb}' AND aa='{aa}' AND membrane IS NULL"):
                 # print(f"\n     >> Residue types")
                 # print(f"       >> {site}")
@@ -111,6 +113,8 @@ with open(outfile, "w") as out:
                 # Store site type
                 sitedis[site] = dis
                 sitesurf[site] = surf
+                siteplddt[site] = plddt
+                siteplddt10[site] = plddt10
                 sitetype[site] = type
                 siteclass[site] = myclass
                 # print(f"           >> {type}")
@@ -136,9 +140,9 @@ with open(outfile, "w") as out:
                 for (site1, site2, aa1, aa2, type, atom1, atom2, dist, pae) in Query(f"SELECT site1, site2, aa1, aa2, type, atom1, atom2, dist, pae FROM alphacon WHERE acc='{alphacc}' AND afdb='{afdb}' AND (site1='{site}' OR site2='{site}')"):
                     # Write to output file
                     if site1 == site:
-                        out.write(f"{ptm}\t{acc}\t{alphacc}\t{afdb}\t{site}\t{source}\t{siteclass[site]}\t{sitetype[site]}\t{sitedis[site]}\t{sitesurf[site]}\t{plddt}\t{plddt10}\t{aa1}\t{aa2}\t{type}\t{atom1}\t{atom2}\t{dist}\t{pae}\n")
+                        out.write(f"{ptm}\t{acc}\t{alphacc}\t{afdb}\t{site}\t{source}\t{siteclass[site]}\t{sitetype[site]}\t{sitedis[site]}\t{sitesurf[site]}\t{siteplddt[site]}\t{siteplddt10[site]}\t{aa1}\t{aa2}\t{type}\t{atom1}\t{atom2}\t{dist}\t{pae}\n")
                     elif site2 == site:
-                        out.write(f"{ptm}\t{acc}\t{alphacc}\t{afdb}\t{site}\t{source}\t{siteclass[site]}\t{sitetype[site]}\t{sitedis[site]}\t{sitesurf[site]}\t{plddt}\t{plddt10}\t{aa2}\t{aa1}\t{type}\t{atom2}\t{atom1}\t{dist}\t{pae}\n")
+                        out.write(f"{ptm}\t{acc}\t{alphacc}\t{afdb}\t{site}\t{source}\t{siteclass[site]}\t{sitetype[site]}\t{sitedis[site]}\t{sitesurf[site]}\t{siteplddt[site]}\t{siteplddt10[site]}\t{aa2}\t{aa1}\t{type}\t{atom2}\t{atom1}\t{dist}\t{pae}\n")
 
     
 

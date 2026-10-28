@@ -132,8 +132,8 @@ NOTES = [
     "the isolated chain, matching the monomeric analysis elsewhere in this work, and normalised "
     "to the empirical maxima of Tien et al. (2013). For phosphorylated residues, the empirical "
     "maximum of the parent residue was scaled by the phospho/parent ratio obtained by repeating "
-    "the Gly-X-Gly enumeration of Tien et al.: SEP 226 \u00c5\u00b2, TPO 243 \u00c5\u00b2, "
-    "PTR 334 \u00c5\u00b2. 'RSA using the unmodified parent reference' is the lowest RSA "
+    "the Gly-X-Gly enumeration of Tien et al.: SEP 228 \u00c5\u00b2, TPO 236 \u00c5\u00b2, "
+    "PTR 328 \u00c5\u00b2. 'RSA using the unmodified parent reference' is the lowest RSA "
     "recalculated with the smaller maxima of unmodified Ser, Thr or Tyr. Entries in which a "
     "partner chain packs against the site show a lower accessibility for the whole entry than "
     "for the isolated chain, as expected.",

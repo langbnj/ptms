@@ -793,3 +793,73 @@ tmpmax <- 7
   ggtitle(f("Buried residues only: p = {pvalue_buried_only}")) +
   xlab("surfdist")
 ) %>% qsave(f("output-distance_to_surface-box-buried_only-zoom{tmpmax}{tmp_plddt}.pdf"))
+
+
+
+# Amino acid-matched controls (as in Fig. 1a)
+# The background above treats both ends of every buried stretch as surface (including protein ends, membrane and low-pLDDT stretches),
+# and includes all amino acids. Here, distances to the nearest surface residue are computed the same way for modified and control residues,
+# with controls drawn from unmodified buried residues of the modified amino acids in the same proteins, weighted to the modification site
+# amino acid frequencies. As above, only canonical isoforms are used (those with a uniseq 'CoreSurf' sequence).
+qres <- Query("SELECT am.value AS acc, a.site, a.aa, a.surf, a.plddt, a.plddt10 FROM alphamap am, alphasa a, (SELECT DISTINCT m.acc FROM unimod m, uniseq s WHERE m.species='human' AND m.ptm IS NOT NULL AND m.acc=s.acc AND s.type='CoreSurf') m WHERE am.value=m.acc AND am.type='uniprot' AND am.version='2022_04' AND am.best=1 AND am.map=a.acc AND am.afdb=a.afdb")
+qcoresurf <- Query("SELECT acc, seq FROM uniseq WHERE species='human' AND type='CoreSurf'")
+qmod <- Query("SELECT DISTINCT acc, site FROM unimod WHERE species='human' AND ptm IS NOT NULL") %>% mutate(mod = T)
+qanymod <- Query("SELECT DISTINCT acc, site FROM unimod WHERE species='human'") %>% mutate(anymod = T)
+# Distance along the sequence to the nearest surface residue
+nearest_surface <- function(site, surf) {
+  s <- sort(site[surf == "S"])
+  i <- findInterval(site, s)
+  pmin(ifelse(i > 0, site - s[pmax(i, 1)], Inf), ifelse(i < length(s), s[pmin(i + 1, length(s))] - site, Inf))
+}
+qaa <- qres %>%
+  group_by(acc) %>% filter(any(surf == "S")) %>% mutate(surfdist = nearest_surface(site, surf)) %>% ungroup %>%
+  filter(surf == "C") %>%
+  # Buried as in uniseq CoreSurf (i.e. not a membrane residue), as above
+  inner_join(qcoresurf, by = "acc") %>% filter(substr(seq, site, site) == "C") %>% select(-seq) %>%
+  left_join(qmod, by = c("acc", "site")) %>%
+  left_join(qanymod, by = c("acc", "site")) %>%
+  mutate(type = ifelse(!is.na(mod), "ptm", ifelse(is.na(anymod), "background", NA))) %>%
+  filter(!is.na(type))
+if (plddt_filtering != 0) {
+  qaa %<>% filter(plddt >= plddt_filtering & plddt10 >= plddt_filtering)
+}
+# Controls of the modified amino acids only, weighted to the modification site amino acid frequencies
+qaa %<>%
+  filter(aa %in% (qaa %>% filter(type == "ptm") %>% pull(aa) %>% unique)) %>%
+  group_by(aa) %>% mutate(weight = ifelse(type == "ptm", 1, sum(type == "ptm") / sum(type == "background"))) %>% ungroup
+qaa %>% group_by(type) %>% tally
+ptmdist_aa <- qaa %>% filter(type == "ptm") %>% pull(surfdist) %>% mean
+controldist_aa <- qaa %>% filter(type == "background") %>% summarise(weighted.mean(surfdist, weight)) %>% pull
+ptmdist_aa
+controldist_aa
+ptmdist_aa - controldist_aa
+# Wilcoxon rank-sum test stratified by amino acid
+wilcox_test(surfdist ~ factor(type) | factor(aa), qaa)
+# coin's pvalue() returns 0 here (it loses precision below ~1e-16), so calculate the two-sided P from the standardised statistic
+tmppval_aa <- 2 * pnorm(-abs(wilcox_test(surfdist ~ factor(type) | factor(aa), qaa) %>% statistic %>% as.numeric))
+tmppval_aa_label <- f("p = {signif(tmppval_aa, 1)}")
+
+tmpmax <- 7
+(
+  qaa %>%
+  mutate(surfdist = replace(surfdist, surfdist > tmpmax, tmpmax)) %>%
+  group_by(type, surfdist) %>%
+  summarise(n = sum(weight)) %>%
+  mutate(freq = n / sum(n)) %>%
+  mutate(type = replace(type, type == "ptm", "Modified")) %>%
+  mutate(type = replace(type, type == "background", "Control")) %>%
+  mutate(type = factor(type, levels = c("Modified", "Control"))) %>%
+  ggplot(aes(x = surfdist, ymin = 0, ymax = freq, fill = fct_rev(type), colour = fct_rev(type))) +
+  geom_ribbon(alpha = 0.3) +
+  annotate(geom = "text", x = 7, y = 0.45, hjust = 1, vjust = 1, label = f("µ(Control) = {sprintf('%.2f', controldist_aa)}\nµ(PTM) = {sprintf('%.2f', ptmdist_aa)}\n{tmppval_aa_label}"), size = 5/.pt) +
+  scale_x_continuous(expand = c(0, 0), breaks = 1:tmpmax, labels = c(1:(tmpmax - 1), f("≥{tmpmax}"))) +
+  scale_y_continuous(expand = c(0, 0), breaks = pretty_breaks(3)) +
+  scale_colour_manual(values = ptmcol, aesthetics = c("colour", "fill"), name = NULL, guide = guide_legend(reverse = T)) +
+  coord_cartesian(xlim = c(1, tmpmax)) +
+  guides(alpha = "none") +
+  theme_nature(legend_position = "top", extra_margin_right = 2) +
+  theme(axis.title.y = element_text(hjust = 0)) +
+  labs(tag = "e") +
+  xlab("Distance to nearest surface residue") +
+  ylab("Fraction")
+) %>% qsave(f("output-distance_to_surface-line-buried_only-zoom{tmpmax}-aa_matched{tmp_plddt}-with_text.pdf"), height = 20)
