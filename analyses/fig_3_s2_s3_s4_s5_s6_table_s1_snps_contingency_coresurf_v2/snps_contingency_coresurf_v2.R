@@ -1424,10 +1424,10 @@ analyse_contingency_coresurf <- function(plddt_filtering = 0) {
   plot_mimic_variants_bars("h", c("S-p", "T-p", "Y-p"), 45, 36, 40, "Cancer Gene Census", "3h-STY-p-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1), "nodis")
   
   # Figure 4 (without showing "Disordered", to make these plots more compact)
-  plot_mimic_variants_bars("a", ptms11, 45, 80, 40, "Common natural variants", "4a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001), "nodis")
-  plot_mimic_variants_bars("b", ptms11, 85, 80, 40, "Rare natural variants", "4b-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001), "nodis")
-  plot_mimic_variants_bars("c", ptms11, 45, 80, 40, "Clinically significant variants", "4c-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1), "nodis")
-  plot_mimic_variants_bars("d", ptms11, 85, 80, 40, "Cancer Gene Census", "4d-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1), "nodis")
+  plot_mimic_variants_bars("a", ptms11, 45, 80, 10, "Common natural variants", "4a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001), "nodis")
+  plot_mimic_variants_bars("b", ptms11, 85, 80, 10, "Rare natural variants", "4b-snps_gnomad-rare_variants", snps_gnomad %>% filter(af <= 0.0001), "nodis")
+  plot_mimic_variants_bars("c", ptms11, 45, 80, 10, "Clinically significant variants", "4c-snps_clinvar-clinsig", snps_clinvar %>% filter(clinsig == 1), "nodis")
+  plot_mimic_variants_bars("d", ptms11, 85, 80, 10, "Cancer Gene Census", "4d-snps_cosmic-cgc1", snps_cosmic %>% filter(cgc == 1), "nodis")
   
   # Figure 4
   plot_mimic_variants_bars("a", ptms11, 45, 80, 10, "Common natural variants", "4a-snps_gnomad-common_variants", snps_gnomad %>% filter(af > 0.0001))

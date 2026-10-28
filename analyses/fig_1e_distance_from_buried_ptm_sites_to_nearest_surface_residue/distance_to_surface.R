@@ -834,9 +834,9 @@ ptmdist_aa
 controldist_aa
 ptmdist_aa - controldist_aa
 # Wilcoxon rank-sum test stratified by amino acid
-wilcox_test(surfdist ~ factor(type) | factor(aa), qaa)
+wilcox_test(surfdist ~ factor(type, levels = c("ptm", "background")) | factor(aa), qaa)
 # coin's pvalue() returns 0 here (it loses precision below ~1e-16), so calculate the two-sided P from the standardised statistic
-tmppval_aa <- 2 * pnorm(-abs(wilcox_test(surfdist ~ factor(type) | factor(aa), qaa) %>% statistic %>% as.numeric))
+tmppval_aa <- 2 * pnorm(-abs(wilcox_test(surfdist ~ factor(type, levels = c("ptm", "background")) | factor(aa), qaa) %>% statistic %>% as.numeric))
 tmppval_aa_label <- f("p = {signif(tmppval_aa, 1)}")
 
 tmpmax <- 7
